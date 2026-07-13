@@ -1,0 +1,3 @@
+# Ignore the local SQLite database file
+plants.db
+**/plants.db

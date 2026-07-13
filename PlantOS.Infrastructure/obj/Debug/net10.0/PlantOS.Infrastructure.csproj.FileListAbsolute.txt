@@ -1,0 +1,17 @@
+/Users/chloehulme/Desktop/PlantOS/PlantOS.Infrastructure/bin/Debug/net10.0/PlantOS.Infrastructure.deps.json
+/Users/chloehulme/Desktop/PlantOS/PlantOS.Infrastructure/bin/Debug/net10.0/PlantOS.Infrastructure.dll
+/Users/chloehulme/Desktop/PlantOS/PlantOS.Infrastructure/bin/Debug/net10.0/PlantOS.Infrastructure.pdb
+/Users/chloehulme/Desktop/PlantOS/PlantOS.Infrastructure/bin/Debug/net10.0/PlantOS.Core.dll
+/Users/chloehulme/Desktop/PlantOS/PlantOS.Infrastructure/bin/Debug/net10.0/PlantOS.Core.pdb
+/Users/chloehulme/Desktop/PlantOS/PlantOS.Infrastructure/obj/Debug/net10.0/PlantOS.Infrastructure.csproj.AssemblyReference.cache
+/Users/chloehulme/Desktop/PlantOS/PlantOS.Infrastructure/obj/Debug/net10.0/PlantOS.Infrastructure.GeneratedMSBuildEditorConfig.editorconfig
+/Users/chloehulme/Desktop/PlantOS/PlantOS.Infrastructure/obj/Debug/net10.0/PlantOS.Infrastructure.AssemblyInfoInputs.cache
+/Users/chloehulme/Desktop/PlantOS/PlantOS.Infrastructure/obj/Debug/net10.0/PlantOS.Infrastructure.AssemblyInfo.cs
+/Users/chloehulme/Desktop/PlantOS/PlantOS.Infrastructure/obj/Debug/net10.0/PlantOS.Infrastructure.csproj.CoreCompileInputs.cache
+/Users/chloehulme/Desktop/PlantOS/PlantOS.Infrastructure/obj/Debug/net10.0/PlantOS..3098F980.Up2Date
+/Users/chloehulme/Desktop/PlantOS/PlantOS.Infrastructure/obj/Debug/net10.0/PlantOS.Infrastructure.dll
+/Users/chloehulme/Desktop/PlantOS/PlantOS.Infrastructure/obj/Debug/net10.0/refint/PlantOS.Infrastructure.dll
+/Users/chloehulme/Desktop/PlantOS/PlantOS.Infrastructure/obj/Debug/net10.0/PlantOS.Infrastructure.pdb
+/Users/chloehulme/Desktop/PlantOS/PlantOS.Infrastructure/obj/Debug/net10.0/ref/PlantOS.Infrastructure.dll
+/Users/chloehulme/Desktop/PlantOS/PlantOS.Infrastructure/bin/Debug/net10.0/PlantOS.Infrastructure.runtimeconfig.json
+/Users/chloehulme/Desktop/PlantOS/PlantOS.Infrastructure/obj/Debug/net10.0/PlantOS.Infrastructure.genruntimeconfig.cache

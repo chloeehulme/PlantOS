@@ -1,0 +1,5 @@
+<Solution>
+  <Project Path="PlantOS.API/PlantOS.API.csproj" />
+  <Project Path="PlantOS.Core/PlantOS.Core.csproj" />
+  <Project Path="PlantOS.Infrastructure/PlantOS.Infrastructure.csproj" />
+</Solution>

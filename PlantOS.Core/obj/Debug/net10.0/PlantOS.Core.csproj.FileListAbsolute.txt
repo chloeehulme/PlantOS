@@ -1,0 +1,11 @@
+/Users/chloehulme/Desktop/PlantOS/PlantOS.Core/bin/Debug/net10.0/PlantOS.Core.deps.json
+/Users/chloehulme/Desktop/PlantOS/PlantOS.Core/bin/Debug/net10.0/PlantOS.Core.dll
+/Users/chloehulme/Desktop/PlantOS/PlantOS.Core/bin/Debug/net10.0/PlantOS.Core.pdb
+/Users/chloehulme/Desktop/PlantOS/PlantOS.Core/obj/Debug/net10.0/PlantOS.Core.GeneratedMSBuildEditorConfig.editorconfig
+/Users/chloehulme/Desktop/PlantOS/PlantOS.Core/obj/Debug/net10.0/PlantOS.Core.AssemblyInfoInputs.cache
+/Users/chloehulme/Desktop/PlantOS/PlantOS.Core/obj/Debug/net10.0/PlantOS.Core.AssemblyInfo.cs
+/Users/chloehulme/Desktop/PlantOS/PlantOS.Core/obj/Debug/net10.0/PlantOS.Core.csproj.CoreCompileInputs.cache
+/Users/chloehulme/Desktop/PlantOS/PlantOS.Core/obj/Debug/net10.0/PlantOS.Core.dll
+/Users/chloehulme/Desktop/PlantOS/PlantOS.Core/obj/Debug/net10.0/refint/PlantOS.Core.dll
+/Users/chloehulme/Desktop/PlantOS/PlantOS.Core/obj/Debug/net10.0/PlantOS.Core.pdb
+/Users/chloehulme/Desktop/PlantOS/PlantOS.Core/obj/Debug/net10.0/ref/PlantOS.Core.dll
