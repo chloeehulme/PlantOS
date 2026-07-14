@@ -1,3 +1,5 @@
+namespace PlantOS.Api.Requests;
+
 public class WaterPlantRequest
 {
     /// <summary>

@@ -35,6 +35,15 @@ public class ExceptionHandlingMiddleware
                 error = ex.Message
             });
         }
+        catch (PlantEventNotFoundException ex)
+        {
+            context.Response.StatusCode = 404;
+
+            await context.Response.WriteAsJsonAsync(new
+            {
+                error = ex.Message
+            });
+        }
         catch (Exception ex)
         {
             context.Response.StatusCode = 500;

@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
 using PlantOS.Api.Requests;
 using PlantOS.Api.Responses;
+using PlantOS.Core.Entities;
 using PlantOS.Core.Services;
 
 namespace PlantOS.Api.Controllers;
@@ -21,13 +22,6 @@ public class PlantEventsController : ControllerBase
         _service = service;
     }
 
-    // [HttpGet("{id}")]
-    // public async Task<IActionResult> GetPlantById(Guid id)
-    // {
-    //     var plant = await _service.GetPlantByIdAsync(id);
-    //     return Ok(plant);
-    // }
-
     [HttpGet("{plantId}")]
     public async Task<IActionResult> GetPlantEvents(Guid plantId)
     {
@@ -42,6 +36,25 @@ public class PlantEventsController : ControllerBase
         });
 
         return Ok(response);
+    }
+
+    [HttpPut("{id}")]
+    public async Task<IActionResult> UpdatePlantEvent(Guid id, [FromBody] UpdatePlantEventRequest request)
+    {
+        if (!ModelState.IsValid)
+        {
+            return ValidationProblem(ModelState);
+        }
+
+        await _service.UpdatePlantEventAsync(id, request.EventType, request.Date, request.Notes);
+        return NoContent();
+    }
+
+    [HttpDelete("{id}")]
+    public async Task<IActionResult> DeletePlantEvent(Guid id)
+    {
+        await _service.DeletePlantEventAsync(id);
+        return NoContent();
     }
 
     [HttpPost("{plantId}/water")]

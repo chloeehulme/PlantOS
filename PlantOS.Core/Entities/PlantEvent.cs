@@ -28,5 +28,20 @@ public class PlantEvent
     private PlantEvent()
     {
     }
+
+    public void SetEventType(PlantEventType eventType)
+    {
+        EventType = eventType;
+    }
+
+    public void SetDate(DateTime date)
+    {
+        Date = date;
+    }
+
+    public void SetNotes(string? notes)
+    {
+        Notes = notes;
+    }
 }
 

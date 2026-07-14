@@ -97,27 +97,15 @@ public class PlantsController : ControllerBase
         return CreatedAtAction(nameof(GetPlantById), new { id = plant.Id }, response);
     }
 
-    [HttpPut("{id}/name")]
-    public async Task<IActionResult> UpdatePlantName(Guid id, [FromBody] UpdatePlantNameRequest request)
+    [HttpPut("{id}")]
+    public async Task<IActionResult> UpdatePlant(Guid id, [FromBody] UpdatePlantRequest request)
     {
         if (!ModelState.IsValid)
         {
             return ValidationProblem(ModelState);
         }
 
-        await _service.UpdatePlantNameAsync(id, request.Name);
-        return NoContent();
-    }
-
-    [HttpPut("{id}/species")]
-    public async Task<IActionResult> UpdatePlantSpecies(Guid id, [FromBody] UpdatePlantSpeciesRequest request)
-    {
-        if (!ModelState.IsValid)
-        {
-            return ValidationProblem(ModelState);
-        }
-
-        await _service.UpdatePlantSpeciesAsync(id, request.Species);
+        await _service.UpdatePlantAsync(id, request.Name, request.Species);
         return NoContent();
     }
 

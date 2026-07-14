@@ -18,13 +18,10 @@ public class EfPlantEventRepository : IPlantEventRepository
         _context = context;
     }
 
-    public async Task<IEnumerable<PlantEvent>> GetPlantEventsAsync(Guid plantId)
+    public async Task<PlantEvent?> GetPlantEventByIdAsync(Guid id)
     {
         return await _context.PlantEvents
-            .Where(e => e.PlantId == plantId)
-            .Include(e => e.Plant)
-            .OrderByDescending(e => e.Date)
-            .ToListAsync();
+            .FirstOrDefaultAsync(p => p.Id == id);
     }
 
     public async Task AddPlantEventAsync(PlantEvent plantEvent)
@@ -33,18 +30,16 @@ public class EfPlantEventRepository : IPlantEventRepository
         await _context.SaveChangesAsync();
     }
 
-    public Task<PlantEvent> GetPlantEventByIdAsync(Guid id)
+    public async Task UpdatePlantEventAsync(PlantEvent plantEvent)
     {
-        throw new NotImplementedException();
+        _context.Update(plantEvent);
+        await _context.SaveChangesAsync();
     }
 
-    public Task UpdatePlantEventAsync(PlantEvent plantEvent)
+    public async Task DeletePlantEventAsync(PlantEvent plantEvent)
     {
-        throw new NotImplementedException();
-    }
 
-    public Task DeletePlantEventAsync(Guid id)
-    {
-        throw new NotImplementedException();
+        _context.Remove(plantEvent);
+        await _context.SaveChangesAsync();
     }
 }
