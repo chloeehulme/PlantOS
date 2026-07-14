@@ -32,4 +32,19 @@ public class EfPlantEventRepository : IPlantEventRepository
         _context.Add(plantEvent);
         await _context.SaveChangesAsync();
     }
+
+    public Task<PlantEvent> GetPlantEventByIdAsync(Guid id)
+    {
+        throw new NotImplementedException();
+    }
+
+    public Task UpdatePlantEventAsync(PlantEvent plantEvent)
+    {
+        throw new NotImplementedException();
+    }
+
+    public Task DeletePlantEventAsync(Guid id)
+    {
+        throw new NotImplementedException();
+    }
 }
