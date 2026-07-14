@@ -5,7 +5,17 @@ using PlantOS.Core.Interfaces;
 namespace PlantOS.Core.Services;
 
 /// <summary>
+/// Provides application and business logic for managing PlantEvent entities.
 /// 
+/// This service coordinates workflows involving PlantEvents and acts as the boundary between the API layer
+/// and the data access layer. It is responsible for applying business rules, managing domain operations,
+/// and determining when exceptions should be raised.
+/// 
+/// This class should not contain HTTP-specific concerns such as status codes, request handling,
+/// or response formatting. Input validation related to HTTP requests belongs in the API layer,
+/// while business validation belongs here or within the domain entities.
+/// 
+/// Assumption: requests reaching this service have already been validated by the controller.
 /// </summary>
 
 public class PlantEventService

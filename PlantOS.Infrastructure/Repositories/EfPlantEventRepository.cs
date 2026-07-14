@@ -6,7 +6,16 @@ using PlantOS.Infrastructure.Data;
 namespace PlantOS.Infrastructure.Repositories;
 
 /// <summary>
-///
+/// Provides a data access implementation of <see cref="IPlantEventRepository"/> using Entity Framework Core.
+/// 
+/// This class is responsible only for persistence concerns, including querying and updating PlantEvent entities
+/// in the database. It should not contain business rules or domain-specific decision making.
+/// 
+/// Business logic, validation rules, and application workflows belong in the Core layer.
+/// This class should expose simple, focused data operations and allow higher layers to determine how
+/// retrieved data should be interpreted.
+/// 
+/// Avoid calling a method within another method. Each method should be self-contained and perform a single operation.
 /// </summary>
 
 public class EfPlantEventRepository : IPlantEventRepository

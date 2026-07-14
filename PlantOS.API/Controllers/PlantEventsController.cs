@@ -7,7 +7,16 @@ using PlantOS.Core.Services;
 namespace PlantOS.Api.Controllers;
 
 /// <summary>
+/// Handles HTTP requests related to PlantEvent entities.
 /// 
+/// This controller is responsible for translating HTTP requests into application operations and
+/// returning appropriate HTTP responses. It should handle request binding, basic input validation,
+/// and delegation of work to the PlantEvent service.
+/// 
+/// Exception handling is managed centrally by ExceptionHandlingMiddleware and should not be implemented
+/// directly within controller actions.
+/// 
+/// Business logic and data access concerns should remain outside of this class.
 /// </summary>
 
 [ApiController]
