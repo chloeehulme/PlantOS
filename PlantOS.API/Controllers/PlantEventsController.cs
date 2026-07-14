@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 using PlantOS.Api.Requests;
+using PlantOS.Api.Responses;
 using PlantOS.Core.Services;
 
 namespace PlantOS.Api.Controllers;
@@ -32,9 +33,15 @@ public class PlantEventsController : ControllerBase
     {
         var plantEvents = await _service.GetPlantEventsAsync(plantId);
 
-        return Ok(plantEvents);
+        var response = plantEvents.Select(e => new PlantEventResponse
+        {
+            Id = e.Id,
+            EventType = e.EventType,
+            Date = e.Date,
+            Notes = e.Notes
+        });
 
-        
+        return Ok(response);
     }
 
     [HttpPost("{plantId}/water")]

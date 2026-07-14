@@ -87,7 +87,14 @@ public class PlantsController : ControllerBase
         }
 
         await _service.AddPlantAsync(plant);
-        return CreatedAtAction(nameof(GetPlants), new { id = plant.Id }, plant);
+        var response = new PlantResponse
+        {
+            Id = plant.Id,
+            Name = plant.Name,
+            Species = plant.Species
+        };
+
+        return CreatedAtAction(nameof(GetPlantById), new { id = plant.Id }, response);
     }
 
     [HttpPut("{id}/name")]
