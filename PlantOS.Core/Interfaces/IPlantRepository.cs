@@ -8,6 +8,8 @@ public interface IPlantRepository
 
     Task<Plant?> GetPlantByIdAsync(Guid id);
 
+    Task<Plant?> GetPlantWithEventsAsync(Guid id);
+
     Task AddPlantAsync(Plant plant);
 
     Task UpdatePlantAsync(Plant plant);

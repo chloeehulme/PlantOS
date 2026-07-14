@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using PlantOS.Infrastructure.Data;
 
@@ -10,9 +11,11 @@ using PlantOS.Infrastructure.Data;
 namespace PlantOS.Infrastructure.Migrations
 {
     [DbContext(typeof(PlantOSDbContext))]
-    partial class PlantOSDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260714084404_AddPlantEventRelationship")]
+    partial class AddPlantEventRelationship
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder.HasAnnotation("ProductVersion", "10.0.9");

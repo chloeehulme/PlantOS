@@ -1,3 +1,9 @@
 # Ignore the local SQLite database file
 plants.db
 **/plants.db
+
+# Ignore build output
+bin/
+obj/
+**/bin/
+**/obj/

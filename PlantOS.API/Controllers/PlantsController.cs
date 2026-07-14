@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 using PlantOS.Api.Requests;
+using PlantOS.Api.Responses;
 using PlantOS.Core.Services;
 
 namespace PlantOS.Api.Controllers;
@@ -35,14 +36,46 @@ public class PlantsController : ControllerBase
     {
         var plants = await _service.GetAllPlantsAsync();
 
-        return Ok(plants);
+        var response = plants.Select(p => new PlantResponse
+        {
+            Id = p.Id,
+            Name = p.Name,
+            Species = p.Species
+        });
+
+        return Ok(response);
     }
 
     [HttpGet("{id}")]
     public async Task<IActionResult> GetPlantById(Guid id)
     {
         var plant = await _service.GetPlantByIdAsync(id);
-        return Ok(plant);
+        return Ok(new PlantResponse
+        {
+            Id = plant.Id,
+            Name = plant.Name,
+            Species = plant.Species,
+        });
+    }
+
+    [HttpGet("{id}/events")]
+    public async Task<IActionResult> GetPlantWithEvents(Guid id)
+    {
+        var plant = await _service.GetPlantWithEventsAsync(id);
+
+        return Ok(new PlantDetailedResponse
+        {
+            Id = plant.Id,
+            Name = plant.Name,
+            Species = plant.Species,
+            Events = plant.Events.Select(e => new PlantEventResponse
+            {
+                Id = e.Id,
+                EventType = e.EventType,
+                Date = e.Date,
+                Notes = e.Notes
+            })
+        });
     }
 
     [HttpPost]

@@ -37,7 +37,13 @@ public class PlantService
         var plant = await _plantRepository.GetPlantByIdAsync(id) ?? throw new PlantNotFoundException(id);
         return plant;
     }
-
+    
+    public async Task<Plant> GetPlantWithEventsAsync(Guid id)
+    {
+        var plant = await _plantRepository.GetPlantWithEventsAsync(id) ?? throw new PlantNotFoundException(id);
+        return plant;
+    }
+    
     public async Task AddPlantAsync(Plant plant)
     {
         await _plantRepository.AddPlantAsync(plant);

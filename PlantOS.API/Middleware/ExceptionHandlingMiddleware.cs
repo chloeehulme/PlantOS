@@ -35,13 +35,13 @@ public class ExceptionHandlingMiddleware
                 error = ex.Message
             });
         }
-        catch (Exception)
+        catch (Exception ex)
         {
             context.Response.StatusCode = 500;
 
             await context.Response.WriteAsJsonAsync(new
             {
-                error = "An unexpected error occurred"
+                error = "An unexpected error occurred: " + ex.Message
             });
         }
     }
