@@ -1,6 +1,11 @@
-# Ignore the local SQLite database file
-plants.db
+# Ignore local database files
+*.db
+*.sqlite
+*.sqlite3
 **/plants.db
+
+# Ignore EF Core migrations and generated schema snapshots
+**/Migrations/
 
 # Ignore build output
 bin/
