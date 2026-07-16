@@ -3,14 +3,20 @@ namespace PlantOS.Core.Entities;
 public class Plant
 {
     public Guid Id { get; private set; }
-    public string Name { get; private set; }
-    public string Species { get; private set; }
+    public string Name { get; private set; } = null!;
+    public string Species { get; private set; } = null!;
+
+    public ICollection<PlantEvent> Events { get; private set; } = [];
 
     public Plant(Guid id, string name, string species)
     {
         Id = id;
         Name = name;
         Species = species;
+    }
+
+    private Plant()
+    {
     }
 
     public void SetName(string name)

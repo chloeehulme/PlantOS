@@ -34,7 +34,15 @@ public class EfPlantRepository : IPlantRepository
 
     public async Task<Plant?> GetPlantByIdAsync(Guid id)
     {
-        return await _context.Plants.FindAsync(id);
+        return await _context.Plants
+            .FirstOrDefaultAsync(p => p.Id == id);
+    }
+
+    public async Task<Plant?> GetPlantWithEventsAsync(Guid id)
+    {
+        return await _context.Plants
+            .Include(p => p.Events)
+            .FirstOrDefaultAsync(p => p.Id == id);
     }
 
     public async Task AddPlantAsync(Plant plant)

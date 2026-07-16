@@ -1,3 +1,4 @@
+using System.Text.Json.Serialization;
 using Microsoft.EntityFrameworkCore;
 using PlantOS.Core.Interfaces;
 using PlantOS.Core.Services;
@@ -9,8 +10,10 @@ var builder = WebApplication.CreateBuilder(args);
 
 
 builder.Services.AddScoped<IPlantRepository, EfPlantRepository>();
+builder.Services.AddScoped<IPlantEventRepository, EfPlantEventRepository>();
 
 builder.Services.AddScoped<PlantService>();
+builder.Services.AddScoped<PlantEventService>();
 
 builder.Services.AddControllers();
 

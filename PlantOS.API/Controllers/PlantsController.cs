@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 using PlantOS.Api.Requests;
+using PlantOS.Api.Responses;
 using PlantOS.Core.Services;
 
 namespace PlantOS.Api.Controllers;
@@ -35,14 +36,46 @@ public class PlantsController : ControllerBase
     {
         var plants = await _service.GetAllPlantsAsync();
 
-        return Ok(plants);
+        var response = plants.Select(p => new PlantResponse
+        {
+            Id = p.Id,
+            Name = p.Name,
+            Species = p.Species
+        });
+
+        return Ok(response);
     }
 
     [HttpGet("{id}")]
     public async Task<IActionResult> GetPlantById(Guid id)
     {
         var plant = await _service.GetPlantByIdAsync(id);
-        return Ok(plant);
+        return Ok(new PlantResponse
+        {
+            Id = plant.Id,
+            Name = plant.Name,
+            Species = plant.Species,
+        });
+    }
+
+    [HttpGet("{id}/events")]
+    public async Task<IActionResult> GetPlantWithEvents(Guid id)
+    {
+        var plant = await _service.GetPlantWithEventsAsync(id);
+
+        return Ok(new PlantDetailedResponse
+        {
+            Id = plant.Id,
+            Name = plant.Name,
+            Species = plant.Species,
+            Events = plant.Events.Select(e => new PlantEventResponse
+            {
+                Id = e.Id,
+                EventType = e.EventType,
+                Date = e.Date,
+                Notes = e.Notes
+            })
+        });
     }
 
     [HttpPost]
@@ -54,30 +87,25 @@ public class PlantsController : ControllerBase
         }
 
         await _service.AddPlantAsync(plant);
-        return CreatedAtAction(nameof(GetPlants), new { id = plant.Id }, plant);
+        var response = new PlantResponse
+        {
+            Id = plant.Id,
+            Name = plant.Name,
+            Species = plant.Species
+        };
+
+        return CreatedAtAction(nameof(GetPlantById), new { id = plant.Id }, response);
     }
 
-    [HttpPut("{id}/name")]
-    public async Task<IActionResult> UpdatePlantName(Guid id, [FromBody] UpdatePlantNameRequest request)
+    [HttpPut("{id}")]
+    public async Task<IActionResult> UpdatePlant(Guid id, [FromBody] UpdatePlantRequest request)
     {
         if (!ModelState.IsValid)
         {
             return ValidationProblem(ModelState);
         }
 
-        await _service.UpdatePlantNameAsync(id, request.Name);
-        return NoContent();
-    }
-
-    [HttpPut("{id}/species")]
-    public async Task<IActionResult> UpdatePlantSpecies(Guid id, [FromBody] UpdatePlantSpeciesRequest request)
-    {
-        if (!ModelState.IsValid)
-        {
-            return ValidationProblem(ModelState);
-        }
-
-        await _service.UpdatePlantSpeciesAsync(id, request.Species);
+        await _service.UpdatePlantAsync(id, request.Name, request.Species);
         return NoContent();
     }
 
