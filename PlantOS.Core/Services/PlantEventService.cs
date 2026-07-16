@@ -41,14 +41,14 @@ public class PlantEventService
     {
         var plant = await _plantRepository.GetPlantWithEventsAsync(plantId) ?? throw new PlantNotFoundException(plantId);
         var plantEvent = plant.Events.FirstOrDefault(e => e.Id == id) ?? throw new PlantEventNotFoundException(id);
-        
+
         return plantEvent;
     }
 
     public async Task UpdatePlantEventAsync(Guid plantId, Guid id, PlantEventType? eventType, DateTime? dateTime, string? notes)
     {
         var plantEvent = await GetPlantEventByIdAsync(plantId, id) ?? throw new PlantEventNotFoundException(id);
-        
+
         if (eventType.HasValue)
         {
             plantEvent.SetEventType(eventType.Value);
