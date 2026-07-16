@@ -51,7 +51,7 @@ public class PlantService
 
     public async Task UpdatePlantAsync(Guid id, string? name, string? species)
     {
-        var plant = await _plantRepository.GetPlantByIdAsync(id) ?? throw new PlantNotFoundException(id);
+        var plant = await GetPlantByIdAsync(id) ?? throw new PlantNotFoundException(id);
 
         if (name is not null)
         {
@@ -68,7 +68,7 @@ public class PlantService
 
     public async Task DeletePlantAsync(Guid id)
     {
-        var plant = await _plantRepository.GetPlantByIdAsync(id) ?? throw new PlantNotFoundException(id);
+        var plant = await GetPlantByIdAsync(id) ?? throw new PlantNotFoundException(id);
         await _plantRepository.DeletePlantAsync(plant);
     }
 }

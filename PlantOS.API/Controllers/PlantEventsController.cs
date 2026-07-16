@@ -31,7 +31,7 @@ public class PlantEventsController : ControllerBase
         _service = service;
     }
 
-    [HttpGet("{plantId}")]
+    [HttpGet("{plantId}/events")]
     public async Task<IActionResult> GetPlantEvents(Guid plantId)
     {
         var plantEvents = await _service.GetPlantEventsAsync(plantId);
@@ -47,34 +47,106 @@ public class PlantEventsController : ControllerBase
         return Ok(response);
     }
 
-    [HttpPut("{id}")]
-    public async Task<IActionResult> UpdatePlantEvent(Guid id, [FromBody] UpdatePlantEventRequest request)
+    [HttpPut("{plantId}/events/{id}")]
+    public async Task<IActionResult> UpdatePlantEvent(Guid plantId, Guid id, [FromBody] UpdatePlantEventRequest request)
     {
         if (!ModelState.IsValid)
         {
             return ValidationProblem(ModelState);
         }
 
-        await _service.UpdatePlantEventAsync(id, request.EventType, request.Date, request.Notes);
+        await _service.UpdatePlantEventAsync(plantId, id, request.EventType, request.Date, request.Notes);
         return NoContent();
     }
 
-    [HttpDelete("{id}")]
-    public async Task<IActionResult> DeletePlantEvent(Guid id)
+    [HttpDelete("{plantId}/events/{id}")]
+    public async Task<IActionResult> DeletePlantEvent(Guid plantId, Guid id)
     {
-        await _service.DeletePlantEventAsync(id);
+        await _service.DeletePlantEventAsync(plantId, id);
         return NoContent();
     }
 
     [HttpPost("{plantId}/water")]
-    public async Task<IActionResult> WaterPlant(Guid plantId, [FromBody] WaterPlantRequest request)
+    public async Task<IActionResult> WaterPlant(Guid plantId, [FromBody] AddPlantEventRequest request)
     {
         if (!ModelState.IsValid)
         {
             return ValidationProblem(ModelState);
         }
 
-        await _service.WaterPlantAsync(plantId, request.WateredAt ?? DateTime.UtcNow, request.Notes);
+        await _service.WaterPlantAsync(plantId, request.OccuredAt ?? DateTime.UtcNow, request.Notes);
+        return Ok();
+    }
+
+    [HttpPost("{plantId}/fertilise")]
+    public async Task<IActionResult> FertilisePlant(Guid plantId, [FromBody] AddPlantEventRequest request)
+    {
+        if (!ModelState.IsValid)
+        {
+            return ValidationProblem(ModelState);
+        }
+
+        await _service.FertilisePlantAsync(plantId, request.OccuredAt ?? DateTime.UtcNow, request.Notes);
+        return Ok();
+    }
+
+    [HttpPost("{plantId}/repot")]
+    public async Task<IActionResult> RepotPlant(Guid plantId, [FromBody] AddPlantEventRequest request)
+    {
+        if (!ModelState.IsValid)
+        {
+            return ValidationProblem(ModelState);
+        }
+
+        await _service.RepotPlantAsync(plantId, request.OccuredAt ?? DateTime.UtcNow, request.Notes);
+        return Ok();
+    }
+
+    [HttpPost("{plantId}/prune")]
+    public async Task<IActionResult> PrunePlant(Guid plantId, [FromBody] AddPlantEventRequest request)
+    {
+        if (!ModelState.IsValid)
+        {
+            return ValidationProblem(ModelState);
+        }
+
+        await _service.PrunePlantAsync(plantId, request.OccuredAt ?? DateTime.UtcNow, request.Notes);
+        return Ok();
+    }
+
+    [HttpPost("{plantId}/bloom")]
+    public async Task<IActionResult> BloomPlant(Guid plantId, [FromBody] AddPlantEventRequest request)
+    {
+        if (!ModelState.IsValid)
+        {
+            return ValidationProblem(ModelState);
+        }
+
+        await _service.BloomPlantAsync(plantId, request.OccuredAt ?? DateTime.UtcNow, request.Notes);
+        return Ok();
+    }
+
+    [HttpPost("{plantId}/new-leaf")]
+    public async Task<IActionResult> NewLeafPlant(Guid plantId, [FromBody] AddPlantEventRequest request)
+    {
+        if (!ModelState.IsValid)
+        {
+            return ValidationProblem(ModelState);
+        }
+
+        await _service.NewLeafPlantAsync(plantId, request.OccuredAt ?? DateTime.UtcNow, request.Notes);
+        return Ok();
+    }
+
+    [HttpPost("{plantId}/pest-detection")]
+    public async Task<IActionResult> PestDetectionPlant(Guid plantId, [FromBody] AddPlantEventRequest request)
+    {
+        if (!ModelState.IsValid)
+        {
+            return ValidationProblem(ModelState);
+        }
+
+        await _service.PestDetectionPlantAsync(plantId, request.OccuredAt ?? DateTime.UtcNow, request.Notes);
         return Ok();
     }
 }

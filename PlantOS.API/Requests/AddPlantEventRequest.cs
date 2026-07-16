@@ -1,15 +1,15 @@
 namespace PlantOS.Api.Requests;
 
-public class WaterPlantRequest
+public class AddPlantEventRequest
 {
     /// <summary>
-    /// Optional date and time the watering occurred.
+    /// Optional date and time the plant event occurred.
     /// If omitted, the current UTC time will be used.
     /// </summary>
-    public DateTime? WateredAt { get; set; }
+    public DateTime? OccuredAt { get; set; }
 
     /// <summary>
-    /// Optional notes about the watering event.
+    /// Optional notes about the plant event.
     /// </summary>
     public string? Notes { get; set; }
 }

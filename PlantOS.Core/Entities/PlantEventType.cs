@@ -2,11 +2,11 @@ namespace PlantOS.Core.Entities;
 
 public enum PlantEventType
 {
-    Watered,
-    Fertilised,
-    Repotted,
-    Pruned,
-    Blooming,
+    Water,
+    Fertilise,
+    Repot,
+    Prune,
+    Bloom,
     NewLeaf,
-    PestDetected
+    PestDetection
 }

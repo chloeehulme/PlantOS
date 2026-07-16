@@ -37,16 +37,18 @@ public class PlantEventService
         return plant.Events.OrderByDescending(e => e.Date);
     }
 
-    public async Task<PlantEvent?> GetPlantEventByIdAsync(Guid id)
+    public async Task<PlantEvent?> GetPlantEventByIdAsync(Guid plantId, Guid id)
     {
-        var plantEvent = await _plantEventRepository.GetPlantEventByIdAsync(id) ?? throw new PlantEventNotFoundException(id);
+        var plant = await _plantRepository.GetPlantWithEventsAsync(plantId) ?? throw new PlantNotFoundException(plantId);
+        var plantEvent = plant.Events.FirstOrDefault(e => e.Id == id) ?? throw new PlantEventNotFoundException(id);
+        
         return plantEvent;
     }
 
-    public async Task UpdatePlantEventAsync(Guid id, PlantEventType? eventType, DateTime? dateTime, string? notes)
+    public async Task UpdatePlantEventAsync(Guid plantId, Guid id, PlantEventType? eventType, DateTime? dateTime, string? notes)
     {
-        var plantEvent = await _plantEventRepository.GetPlantEventByIdAsync(id) ?? throw new PlantEventNotFoundException(id);
-
+        var plantEvent = await GetPlantEventByIdAsync(plantId, id) ?? throw new PlantEventNotFoundException(id);
+        
         if (eventType.HasValue)
         {
             plantEvent.SetEventType(eventType.Value);
@@ -65,9 +67,9 @@ public class PlantEventService
         await _plantEventRepository.UpdatePlantEventAsync(plantEvent);
     }
 
-    public async Task DeletePlantEventAsync(Guid plantEventId)
+    public async Task DeletePlantEventAsync(Guid plantId, Guid id)
     {
-        var plantEvent = await _plantEventRepository.GetPlantEventByIdAsync(plantEventId) ?? throw new PlantEventNotFoundException(plantEventId);
+        var plantEvent = await GetPlantEventByIdAsync(plantId, id) ?? throw new PlantEventNotFoundException(id);
         await _plantEventRepository.DeletePlantEventAsync(plantEvent);
     }
 
@@ -78,7 +80,97 @@ public class PlantEventService
         var plantEvent = new PlantEvent(
             Guid.NewGuid(),
             plant.Id,
-            PlantEventType.Watered,
+            PlantEventType.Water,
+            dateTime,
+            notes
+        );
+
+        await _plantEventRepository.AddPlantEventAsync(plantEvent);
+    }
+
+    public async Task FertilisePlantAsync(Guid plantId, DateTime dateTime, string? notes)
+    {
+        var plant = await _plantRepository.GetPlantByIdAsync(plantId) ?? throw new PlantNotFoundException(plantId);
+
+        var plantEvent = new PlantEvent(
+            Guid.NewGuid(),
+            plant.Id,
+            PlantEventType.Fertilise,
+            dateTime,
+            notes
+        );
+
+        await _plantEventRepository.AddPlantEventAsync(plantEvent);
+    }
+
+    public async Task RepotPlantAsync(Guid plantId, DateTime dateTime, string? notes)
+    {
+        var plant = await _plantRepository.GetPlantByIdAsync(plantId) ?? throw new PlantNotFoundException(plantId);
+
+        var plantEvent = new PlantEvent(
+            Guid.NewGuid(),
+            plant.Id,
+            PlantEventType.Repot,
+            dateTime,
+            notes
+        );
+
+        await _plantEventRepository.AddPlantEventAsync(plantEvent);
+    }
+
+    public async Task PrunePlantAsync(Guid plantId, DateTime dateTime, string? notes)
+    {
+        var plant = await _plantRepository.GetPlantByIdAsync(plantId) ?? throw new PlantNotFoundException(plantId);
+
+        var plantEvent = new PlantEvent(
+            Guid.NewGuid(),
+            plant.Id,
+            PlantEventType.Prune,
+            dateTime,
+            notes
+        );
+
+        await _plantEventRepository.AddPlantEventAsync(plantEvent);
+    }
+
+    public async Task BloomPlantAsync(Guid plantId, DateTime dateTime, string? notes)
+    {
+        var plant = await _plantRepository.GetPlantByIdAsync(plantId) ?? throw new PlantNotFoundException(plantId);
+
+        var plantEvent = new PlantEvent(
+            Guid.NewGuid(),
+            plant.Id,
+            PlantEventType.Bloom,
+            dateTime,
+            notes
+        );
+
+        await _plantEventRepository.AddPlantEventAsync(plantEvent);
+    }
+
+    public async Task NewLeafPlantAsync(Guid plantId, DateTime dateTime, string? notes)
+    {
+        var plant = await _plantRepository.GetPlantByIdAsync(plantId) ?? throw new PlantNotFoundException(plantId);
+
+        var plantEvent = new PlantEvent(
+            Guid.NewGuid(),
+            plant.Id,
+            PlantEventType.NewLeaf,
+            dateTime,
+            notes
+        );
+
+        await _plantEventRepository.AddPlantEventAsync(plantEvent);
+    }
+
+    public async Task PestDetectionPlantAsync(Guid plantId, DateTime dateTime, string? notes)
+    {
+        var plant = await _plantRepository.GetPlantByIdAsync(plantId) ?? throw new PlantNotFoundException(plantId);
+
+        var plantEvent = new PlantEvent(
+            Guid.NewGuid(),
+            plant.Id,
+            PlantEventType.PestDetection,
             dateTime,
             notes
         );
