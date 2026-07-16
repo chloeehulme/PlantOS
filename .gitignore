@@ -12,3 +12,13 @@ bin/
 obj/
 **/bin/
 **/obj/
+
+# Ignore IDE and OS noise
+.vs/
+.vscode/
+.idea/
+.DS_Store
+*.suo
+*.user
+*.userosscache
+*.sln.docstates

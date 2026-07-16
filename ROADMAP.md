@@ -6,13 +6,13 @@ PlantOS is a fun way for me to keep better track of my plants (killed a few too 
 
 ## Current Focus / Immediate TODOs
 
-Here are the next 5 things I want to work through in the next few sessions:
+Here are the next few things I want to work through:
 
 1. Add a basic unit test suite for the current core behaviour in main
 2. Set up CI on main so tests run automatically
-3. Merge the water event work and keep the branch history tidy
-4. Add a README and the first GitHub agent guidance files
-5. Implement the remaining events in the PlantEvents enum
+3. Add a README and the first GitHub agent guidance files
+4. Get started on background workers
+5. More robust exception handling
 
 ## Roadmap Overview
 
