@@ -2,4 +2,5 @@
   <Project Path="PlantOS.API/PlantOS.API.csproj" />
   <Project Path="PlantOS.Core/PlantOS.Core.csproj" />
   <Project Path="PlantOS.Infrastructure/PlantOS.Infrastructure.csproj" />
+  <Project Path="PlantOS.Tests/PlantOS.Tests.csproj" />
 </Solution>
