@@ -8,11 +8,10 @@ PlantOS is a fun way for me to keep better track of my plants (killed a few too 
 
 Here are the next few things I want to work through:
 
-1. Add a basic unit test suite for the current core behaviour in main
-2. Set up CI on main so tests run automatically
-3. Add a README and the first GitHub agent guidance files
-4. Get started on background workers
-5. More robust exception handling
+1. Add a README
+2. Add Copilot agents
+3. Get started on background workers
+4. More robust exception handling
 
 ## Roadmap Overview
 
