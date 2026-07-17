@@ -1,0 +1,685 @@
+{
+  "info": {
+    "_postman_id": "0d755c3a-4b76-4f1a-86cd-3d3a0dbfe7a7",
+    "name": "PlantOS API Happy Path",
+    "description": "Happy-path Postman collection for the PlantOS API, including automated tests and ID capture for plant and event requests.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:5199",
+      "type": "string"
+    },
+    {
+      "key": "plantId",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "eventId",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "waterEventId",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "fertiliseEventId",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "repotEventId",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "pruneEventId",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "bloomEventId",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "newLeafEventId",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "pestDetectionEventId",
+      "value": "",
+      "type": "string"
+    }
+  ],
+  "item": [
+    {
+      "name": "Plants",
+      "item": [
+        {
+          "name": "Create plant",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Postman Test Plant\",\n  \"species\": \"Test Species\"\n}"
+            },
+            "url": "{{baseUrl}}/api/plants"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 201\", function () {",
+                  "    pm.response.to.have.status(201);",
+                  "});",
+                  "",
+                  "var jsonData = pm.response.json();",
+                  "pm.test(\"Response contains a plant id\", function () {",
+                  "    pm.expect(jsonData.id).to.be.a(\"string\");",
+                  "    pm.expect(jsonData.id).to.not.equal(\"\");",
+                  "});",
+                  "pm.environment.set(\"plantId\", jsonData.id);",
+                  "pm.collectionVariables.set(\"plantId\", jsonData.id);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Get all plants",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/plants"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "var jsonData = pm.response.json();",
+                  "pm.test(\"Response is an array of plants\", function () {",
+                  "    pm.expect(jsonData).to.be.an(\"array\");",
+                  "    pm.expect(jsonData.length).to.be.greaterThan(0);",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Get plant by id",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/plants/{{plantId}}"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "var jsonData = pm.response.json();",
+                  "pm.test(\"Returned plant matches the created plant id\", function () {",
+                  "    pm.expect(jsonData.id).to.equal(pm.environment.get(\"plantId\"));",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Get plant with events",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/plants/{{plantId}}/events"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "var jsonData = pm.response.json();",
+                  "pm.test(\"Response includes the plant id and an events array\", function () {",
+                  "    pm.expect(jsonData.id).to.equal(pm.environment.get(\"plantId\"));",
+                  "    pm.expect(jsonData.events).to.be.an(\"array\");",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Update plant",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Updated Postman Plant\",\n  \"species\": \"Updated Species\"\n}"
+            },
+            "url": "{{baseUrl}}/api/plants/{{plantId}}"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 204\", function () {",
+                  "    pm.response.to.have.status(204);",
+                  "});"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Plant Events",
+      "item": [
+        {
+          "name": "Create water event",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"occuredAt\": \"2026-07-17T12:00:00Z\",\n  \"notes\": \"Watered during Postman happy path\"\n}"
+            },
+            "url": "{{baseUrl}}/api/plantEvents/{{plantId}}/water"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Get plant events",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/plantEvents/{{plantId}}/events"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "var jsonData = pm.response.json();",
+                  "pm.test(\"Response is an array of events\", function () {",
+                  "    pm.expect(jsonData).to.be.an(\"array\");",
+                  "    pm.expect(jsonData.length).to.be.greaterThan(0);",
+                  "});",
+                  "if (jsonData.length > 0) {",
+                  "    pm.environment.set(\"eventId\", jsonData[0].id);",
+                  "    pm.environment.set(\"waterEventId\", jsonData[0].id);",
+                  "    pm.collectionVariables.set(\"eventId\", jsonData[0].id);",
+                  "    pm.collectionVariables.set(\"waterEventId\", jsonData[0].id);",
+                  "}"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Update plant event",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"eventType\": 1,\n  \"date\": \"2026-07-18T10:00:00Z\",\n  \"notes\": \"Updated event notes\"\n}"
+            },
+            "url": "{{baseUrl}}/api/plantEvents/{{plantId}}/events/{{eventId}}"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 204\", function () {",
+                  "    pm.response.to.have.status(204);",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Delete plant event",
+          "request": {
+            "method": "DELETE",
+            "url": "{{baseUrl}}/api/plantEvents/{{plantId}}/events/{{eventId}}"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 204\", function () {",
+                  "    pm.response.to.have.status(204);",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Create fertilise event",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"occuredAt\": \"2026-07-17T13:00:00Z\",\n  \"notes\": \"Fertilised during Postman happy path\"\n}"
+            },
+            "url": "{{baseUrl}}/api/plantEvents/{{plantId}}/fertilise"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Capture fertilise event id",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/plantEvents/{{plantId}}/events"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "var jsonData = pm.response.json();",
+                  "if (jsonData.length > 0) {",
+                  "    pm.environment.set(\"fertiliseEventId\", jsonData[0].id);",
+                  "    pm.collectionVariables.set(\"fertiliseEventId\", jsonData[0].id);",
+                  "}"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Create repot event",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"occuredAt\": \"2026-07-17T14:00:00Z\",\n  \"notes\": \"Repotted during Postman happy path\"\n}"
+            },
+            "url": "{{baseUrl}}/api/plantEvents/{{plantId}}/repot"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Capture repot event id",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/plantEvents/{{plantId}}/events"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "var jsonData = pm.response.json();",
+                  "if (jsonData.length > 0) {",
+                  "    pm.environment.set(\"repotEventId\", jsonData[0].id);",
+                  "    pm.collectionVariables.set(\"repotEventId\", jsonData[0].id);",
+                  "}"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Create prune event",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"occuredAt\": \"2026-07-17T15:00:00Z\",\n  \"notes\": \"Pruned during Postman happy path\"\n}"
+            },
+            "url": "{{baseUrl}}/api/plantEvents/{{plantId}}/prune"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Capture prune event id",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/plantEvents/{{plantId}}/events"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "var jsonData = pm.response.json();",
+                  "if (jsonData.length > 0) {",
+                  "    pm.environment.set(\"pruneEventId\", jsonData[0].id);",
+                  "    pm.collectionVariables.set(\"pruneEventId\", jsonData[0].id);",
+                  "}"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Create bloom event",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"occuredAt\": \"2026-07-17T16:00:00Z\",\n  \"notes\": \"Bloomed during Postman happy path\"\n}"
+            },
+            "url": "{{baseUrl}}/api/plantEvents/{{plantId}}/bloom"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Capture bloom event id",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/plantEvents/{{plantId}}/events"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "var jsonData = pm.response.json();",
+                  "if (jsonData.length > 0) {",
+                  "    pm.environment.set(\"bloomEventId\", jsonData[0].id);",
+                  "    pm.collectionVariables.set(\"bloomEventId\", jsonData[0].id);",
+                  "}"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Create new leaf event",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"occuredAt\": \"2026-07-17T17:00:00Z\",\n  \"notes\": \"New leaf during Postman happy path\"\n}"
+            },
+            "url": "{{baseUrl}}/api/plantEvents/{{plantId}}/new-leaf"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Capture new leaf event id",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/plantEvents/{{plantId}}/events"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "var jsonData = pm.response.json();",
+                  "if (jsonData.length > 0) {",
+                  "    pm.environment.set(\"newLeafEventId\", jsonData[0].id);",
+                  "    pm.collectionVariables.set(\"newLeafEventId\", jsonData[0].id);",
+                  "}"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Create pest detection event",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"occuredAt\": \"2026-07-17T18:00:00Z\",\n  \"notes\": \"Pest detected during Postman happy path\"\n}"
+            },
+            "url": "{{baseUrl}}/api/plantEvents/{{plantId}}/pest-detection"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Capture pest detection event id",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/plantEvents/{{plantId}}/events"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "var jsonData = pm.response.json();",
+                  "if (jsonData.length > 0) {",
+                  "    pm.environment.set(\"pestDetectionEventId\", jsonData[0].id);",
+                  "    pm.collectionVariables.set(\"pestDetectionEventId\", jsonData[0].id);",
+                  "}"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Delete plant",
+          "request": {
+            "method": "DELETE",
+            "url": "{{baseUrl}}/api/plants/{{plantId}}"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 204\", function () {",
+                  "    pm.response.to.have.status(204);",
+                  "});"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
