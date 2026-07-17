@@ -79,13 +79,14 @@ public class PlantsController : ControllerBase
     }
 
     [HttpPost]
-    public async Task<IActionResult> AddPlant([FromBody] Core.Entities.Plant plant)
+    public async Task<IActionResult> AddPlant([FromBody] AddPlantRequest request)
     {
-        if (plant == null)
+        if (!ModelState.IsValid)
         {
-            return BadRequest("Plant cannot be null.");
+            return ValidationProblem(ModelState);
         }
 
+        var plant = new Core.Entities.Plant(request.Name, request.Species);
         await _service.AddPlantAsync(plant);
         var response = new PlantResponse
         {

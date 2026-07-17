@@ -8,6 +8,18 @@ using PlantOS.Infrastructure.Repositories;
 
 var builder = WebApplication.CreateBuilder(args);
 
+// Allows the local Vite dev server (ui/) to call this API from the browser.
+// Wide open on purpose - this is a local POC, not a deployed service.
+const string DevCorsPolicy = "DevCorsPolicy";
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy(DevCorsPolicy, policy =>
+    {
+        policy.AllowAnyOrigin()
+              .AllowAnyMethod()
+              .AllowAnyHeader();
+    });
+});
 
 builder.Services.AddScoped<IPlantRepository, EfPlantRepository>();
 builder.Services.AddScoped<IPlantEventRepository, EfPlantEventRepository>();
@@ -25,6 +37,7 @@ builder.Services.AddDbContext<PlantOSDbContext>(options =>
 
 var app = builder.Build();
 
+app.UseCors(DevCorsPolicy);
 app.UseMiddleware<ExceptionHandlingMiddleware>();
 app.MapControllers();
 
