@@ -15,6 +15,14 @@ public class Plant
         Species = species;
     }
 
+    // Convenience constructor for creating a brand new plant: the caller
+    // shouldn't need to know or care about Guid generation, so the Id is
+    // generated here rather than being supplied by an API client.
+    public Plant(string name, string species)
+        : this(Guid.NewGuid(), name, species)
+    {
+    }
+
     private Plant()
     {
     }
