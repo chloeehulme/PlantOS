@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import type { Plant } from './models/Plant';
+import type { Plant } from '../../models/Plant';
 
 interface PlantListProps {
   plants: Plant[];

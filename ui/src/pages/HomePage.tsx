@@ -2,9 +2,9 @@ import { useEffect, useState } from 'react';
 import { fetchPlants, fetchPlantDetails, addPlant, waterPlant } from '../api';
 import type { Plant } from '../models/Plant';
 import type { PlantDetails as PlantDetailsData } from '../models/PlantEvent';
-import { PlantList } from '../PlantList';
-import { PlantDetails } from '../PlantDetails';
-import { PixiPlantCanvas } from '../PixiPlantCanvas';
+import { PlantList } from '../components/plants/PlantList';
+import { PlantDetails } from '../components/plants/PlantDetails';
+import { PixiPlantCanvas } from '../components/canvas/PixiPlantCanvas';
 
 // HomePage wires together the three main pieces of the POC:
 //  - PlantList (left): pick/add a plant
