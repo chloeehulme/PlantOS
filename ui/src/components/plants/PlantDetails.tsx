@@ -1,5 +1,5 @@
-import type { PlantDetails as PlantDetailsData } from './models/PlantEvent';
-import { PlantEventTypeLabels } from './models/PlantEvent';
+import type { PlantDetails as PlantDetailsData } from '../../models/PlantEvent';
+import { PlantEventTypeLabels } from '../../models/PlantEvent';
 
 interface PlantDetailsProps {
   plant: PlantDetailsData | null;
