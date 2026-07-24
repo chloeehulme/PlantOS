@@ -7,6 +7,7 @@
 4. Run the collection in order.
 
 The collection:
+
 - creates a plant and stores the generated plant id in variables,
 - exercises the happy path for each plant endpoint,
 - creates event records and stores generated event ids for follow-up requests,
