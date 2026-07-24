@@ -30,13 +30,15 @@ export async function fetchPlantDetails(plantId: string): Promise<PlantDetails> 
 }
 
 // POST /api/plants - create a new plant.
-// The API generates the new plant's Guid server-side, so we only send
-// name + species.
-export async function addPlant(name: string, species: string): Promise<Plant> {
+// The API generates the new plant's Guid server-side. tileX/tileY default to
+// 0,0 so the existing sidebar "add plant" form (which doesn't pick a
+// location) keeps working unchanged; the game canvas passes real coordinates
+// when a plant is added by clicking a tile.
+export async function addPlant(name: string, species: string, tileX = 0, tileY = 0): Promise<Plant> {
   const response = await fetch(`${API_BASE_URL}/plants`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ name, species }),
+    body: JSON.stringify({ name, species, tileX, tileY }),
   });
   return handleResponse<Plant>(response);
 }

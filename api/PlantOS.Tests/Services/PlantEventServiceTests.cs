@@ -70,7 +70,7 @@ public class PlantEventServiceTests
     [Fact]
     public async Task GetPlantEventsAsync_ReturnsEmptyCollection_WhenPlantHasNoEvents()
     {
-        var plant = new Plant(Guid.NewGuid(), "Fern", "Nephrolepis");
+        var plant = new Plant(Guid.NewGuid(), "Fern", "Nephrolepis", 0, 0);
         var repository = new StubPlantRepository { Plant = plant };
         var eventRepository = new StubPlantEventRepository();
         var service = new PlantEventService(eventRepository, repository);
@@ -83,7 +83,7 @@ public class PlantEventServiceTests
     [Fact]
     public async Task WaterPlantAsync_AddsWaterEventForExistingPlant()
     {
-        var plant = new Plant(Guid.NewGuid(), "Fern", "Nephrolepis");
+        var plant = new Plant(Guid.NewGuid(), "Fern", "Nephrolepis", 0, 0);
         var repository = new StubPlantRepository { Plant = plant };
         var eventRepository = new StubPlantEventRepository();
         var service = new PlantEventService(eventRepository, repository);
@@ -109,7 +109,7 @@ public class PlantEventServiceTests
 
     private static Plant CreatePlantWithEvents()
     {
-        var plant = new Plant(Guid.NewGuid(), "Rose", "Rosa");
+        var plant = new Plant(Guid.NewGuid(), "Rose", "Rosa", 0, 0);
         plant.Events.Add(new PlantEvent(Guid.NewGuid(), plant.Id, PlantEventType.Water, new DateTime(2024, 2, 10), "First"));
         plant.Events.Add(new PlantEvent(Guid.NewGuid(), plant.Id, PlantEventType.Fertilise, new DateTime(2024, 3, 10), "Second"));
         return plant;

@@ -7,4 +7,8 @@ public class PlantResponse
     public string Name { get; set; } = null!;
 
     public string Species { get; set; } = null!;
+
+    public int TileX { get; set; }
+
+    public int TileY { get; set; }
 }

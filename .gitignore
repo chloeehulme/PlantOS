@@ -7,9 +7,6 @@
 *.sqlite3
 **/plants.db
 
-# Ignore EF Core migrations and generated schema snapshots
-**/Migrations/
-
 # Ignore build output
 bin/
 obj/

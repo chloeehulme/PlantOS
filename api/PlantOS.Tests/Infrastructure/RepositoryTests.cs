@@ -29,7 +29,7 @@ public class RepositoryTests : IDisposable
     public async Task EfPlantRepository_AddPlantAsync_PersistsPlantAndThrowsOnInvalidState()
     {
         var repository = new EfPlantRepository(_context);
-        var plant = new Plant(Guid.NewGuid(), "Rose", "Rosa");
+        var plant = new Plant(Guid.NewGuid(), "Rose", "Rosa", 0, 0);
 
         await repository.AddPlantAsync(plant);
 
@@ -41,7 +41,7 @@ public class RepositoryTests : IDisposable
     public async Task EfPlantRepository_GetPlantWithEventsAsync_LoadsEventsForMatchingPlant()
     {
         var repository = new EfPlantRepository(_context);
-        var plant = new Plant(Guid.NewGuid(), "Fern", "Nephrolepis");
+        var plant = new Plant(Guid.NewGuid(), "Fern", "Nephrolepis", 0, 0);
         plant.Events.Add(new PlantEvent(Guid.NewGuid(), plant.Id, PlantEventType.Water, new DateTime(2024, 1, 1), "Watered"));
 
         await repository.AddPlantAsync(plant);
@@ -56,7 +56,7 @@ public class RepositoryTests : IDisposable
     [Fact]
     public async Task EfPlantEventRepository_AddPlantEventAsync_PersistsEventWithPlantReference()
     {
-        var plant = new Plant(Guid.NewGuid(), "Basil", "Ocimum");
+        var plant = new Plant(Guid.NewGuid(), "Basil", "Ocimum", 0, 0);
         await _context.Plants.AddAsync(plant);
         await _context.SaveChangesAsync();
 
@@ -73,7 +73,7 @@ public class RepositoryTests : IDisposable
     public async Task EfPlantRepository_DeletePlantAsync_Throws_WhenPlantIsDetachedOrInvalid()
     {
         var repository = new EfPlantRepository(_context);
-        var plant = new Plant(Guid.NewGuid(), "Cactus", "Cactaceae");
+        var plant = new Plant(Guid.NewGuid(), "Cactus", "Cactaceae", 0, 0);
 
         await Assert.ThrowsAsync<DbUpdateConcurrencyException>(() => repository.DeletePlantAsync(plant));
     }

@@ -40,7 +40,9 @@ public class PlantsController : ControllerBase
         {
             Id = p.Id,
             Name = p.Name,
-            Species = p.Species
+            Species = p.Species,
+            TileX = p.TileX,
+            TileY = p.TileY
         });
 
         return Ok(response);
@@ -55,6 +57,8 @@ public class PlantsController : ControllerBase
             Id = plant.Id,
             Name = plant.Name,
             Species = plant.Species,
+            TileX = plant.TileX,
+            TileY = plant.TileY,
         });
     }
 
@@ -68,6 +72,8 @@ public class PlantsController : ControllerBase
             Id = plant.Id,
             Name = plant.Name,
             Species = plant.Species,
+            TileX = plant.TileX,
+            TileY = plant.TileY,
             Events = plant.Events.Select(e => new PlantEventResponse
             {
                 Id = e.Id,
@@ -86,13 +92,15 @@ public class PlantsController : ControllerBase
             return ValidationProblem(ModelState);
         }
 
-        var plant = new Core.Entities.Plant(request.Name, request.Species);
+        var plant = new Core.Entities.Plant(request.Name, request.Species, request.TileX, request.TileY);
         await _service.AddPlantAsync(plant);
         var response = new PlantResponse
         {
             Id = plant.Id,
             Name = plant.Name,
-            Species = plant.Species
+            Species = plant.Species,
+            TileX = plant.TileX,
+            TileY = plant.TileY
         };
 
         return CreatedAtAction(nameof(GetPlantById), new { id = plant.Id }, response);
@@ -106,7 +114,7 @@ public class PlantsController : ControllerBase
             return ValidationProblem(ModelState);
         }
 
-        await _service.UpdatePlantAsync(id, request.Name, request.Species);
+        await _service.UpdatePlantAsync(id, request.Name, request.Species, request.TileX, request.TileY);
         return NoContent();
     }
 
