@@ -73,7 +73,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"name\": \"Postman Test Plant\",\n  \"species\": \"Test Species\"\n}"
+              "raw": "{\n  \"name\": \"Postman Test Plant\",\n  \"species\": \"Test Species\",\n  \"tileX\": 5,\n  \"tileY\": 4\n}"
             },
             "url": "{{baseUrl}}/api/plants"
           },
@@ -188,7 +188,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"name\": \"Updated Postman Plant\",\n  \"species\": \"Updated Species\"\n}"
+              "raw": "{\n  \"name\": \"Updated Postman Plant\",\n  \"species\": \"Updated Species\",\n  \"tileX\": 6,\n  \"tileY\": 7\n}"
             },
             "url": "{{baseUrl}}/api/plants/{{plantId}}"
           },

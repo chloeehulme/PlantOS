@@ -4,4 +4,6 @@ export interface Plant {
   id: string;
   name: string;
   species: string;
+  tileX: number;
+  tileY: number;
 }

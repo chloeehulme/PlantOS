@@ -12,4 +12,10 @@ public class AddPlantRequest
 
     [Required]
     public string Species { get; set; } = null!;
+
+    [Range(0, int.MaxValue)]
+    public int TileX { get; set; }
+
+    [Range(0, int.MaxValue)]
+    public int TileY { get; set; }
 }

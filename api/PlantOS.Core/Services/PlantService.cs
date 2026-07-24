@@ -49,7 +49,7 @@ public class PlantService
         await _plantRepository.AddPlantAsync(plant);
     }
 
-    public async Task UpdatePlantAsync(Guid id, string? name, string? species)
+    public async Task UpdatePlantAsync(Guid id, string? name, string? species, int? tileX, int? tileY)
     {
         var plant = await GetPlantByIdAsync(id) ?? throw new PlantNotFoundException(id);
 
@@ -61,6 +61,16 @@ public class PlantService
         if (species is not null)
         {
             plant.SetSpecies(species);
+        }
+
+        if (tileX is not null)
+        {
+            plant.SetTileX(tileX.Value);
+        }
+
+        if (tileY is not null)
+        {
+            plant.SetTileY(tileY.Value);
         }
 
         await _plantRepository.UpdatePlantAsync(plant);

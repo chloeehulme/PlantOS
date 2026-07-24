@@ -1,6 +1,8 @@
 import { Container, Graphics } from 'pixi.js';
 import { TILE_SIZE } from './mapData';
 import type { TileMap } from './TileMap';
+import { isPlantAt } from './Plants';
+import type { Plant } from '../models/Plant';
 
 export type Direction = 'up' | 'down' | 'left' | 'right' | null;
 
@@ -50,7 +52,7 @@ export class Player {
   /**
    * Update player position based on direction
    */
-  update(direction: Direction, tileMap: TileMap): void {
+  update(direction: Direction, tileMap: TileMap, plants: Plant[]): void {
     if (!direction) return;
 
     let newTileX = this.tileX;
@@ -71,8 +73,12 @@ export class Player {
         break;
     }
 
-    // Check if the new position is valid and walkable
-    if (tileMap.isWalkable(newTileX, newTileY)) {
+    // Static world collision (map tiles) and dynamic object collision (plants)
+    // are checked independently, then combined.
+    const isWalkable = tileMap.isWalkable(newTileX, newTileY);
+    const isBlockedByPlant = isPlantAt(plants, newTileX, newTileY);
+
+    if (isWalkable && !isBlockedByPlant) {
       this.tileX = newTileX;
       this.tileY = newTileY;
 

@@ -122,11 +122,79 @@ body {
   justify-content: center;
 }
 
+.pixi-canvas-wrapper {
+  position: relative;
+}
+
 .pixi-canvas-host {
   border: 1px solid #ddd;
   border-radius: 8px;
   overflow: hidden;
   line-height: 0;
+}
+
+/* Click-to-place form: appears over the canvas when a valid tile is clicked.
+   Uses window.prompt()-free inputs since native dialogs aren't supported in
+   every host (e.g. VS Code's Simple Browser). */
+.plant-placement-form {
+  position: absolute;
+  top: 12px;
+  left: 12px;
+  background: white;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  width: 180px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+}
+
+.plant-placement-form p {
+  margin: 0 0 4px;
+  font-size: 13px;
+  color: #555;
+}
+
+.plant-placement-form input {
+  padding: 6px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}
+
+.plant-placement-form-actions {
+  display: flex;
+  gap: 6px;
+}
+
+.plant-placement-form-actions button {
+  flex: 1;
+  padding: 6px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.plant-placement-form-actions button[type='submit'] {
+  background: #4caf60;
+  color: white;
+}
+
+.plant-placement-form-actions button[type='button'] {
+  background: #eee;
+}
+
+.plant-placement-error {
+  position: absolute;
+  top: 12px;
+  left: 12px;
+  background: #ffe0e0;
+  border: 1px solid #cc6666;
+  border-radius: 6px;
+  padding: 8px 12px;
+  font-size: 13px;
+  max-width: 220px;
 }
 
 /* Plant details (right column) */

@@ -5,21 +5,35 @@ public class Plant
     public Guid Id { get; private set; }
     public string Name { get; private set; } = null!;
     public string Species { get; private set; } = null!;
+    public int TileX { get; private set; }
+    public int TileY { get; private set; }
 
     public ICollection<PlantEvent> Events { get; private set; } = [];
 
-    public Plant(Guid id, string name, string species)
+    public Plant(Guid id, string name, string species, int tileX, int tileY)
     {
+        if (tileX < 0)
+        {
+            throw new ArgumentOutOfRangeException(nameof(tileX), "TileX cannot be negative.");
+        }
+
+        if (tileY < 0)
+        {
+            throw new ArgumentOutOfRangeException(nameof(tileY), "TileY cannot be negative.");
+        }
+
         Id = id;
         Name = name;
         Species = species;
+        TileX = tileX;
+        TileY = tileY;
     }
 
     // Convenience constructor for creating a brand new plant: the caller
     // shouldn't need to know or care about Guid generation, so the Id is
     // generated here rather than being supplied by an API client.
-    public Plant(string name, string species)
-        : this(Guid.NewGuid(), name, species)
+    public Plant(string name, string species, int tileX, int tileY)
+        : this(Guid.NewGuid(), name, species, tileX, tileY)
     {
     }
 
@@ -45,5 +59,25 @@ public class Plant
         }
 
         Species = species;
+    }
+
+    public void SetTileX(int tileX)
+    {
+        if (tileX < 0)
+        {
+            throw new ArgumentOutOfRangeException(nameof(tileX), "TileX cannot be negative.");
+        }
+
+        TileX = tileX;
+    }
+
+    public void SetTileY(int tileY)
+    {
+        if (tileY < 0)
+        {
+            throw new ArgumentOutOfRangeException(nameof(tileY), "TileY cannot be negative.");
+        }
+
+        TileY = tileY;
     }
 }
