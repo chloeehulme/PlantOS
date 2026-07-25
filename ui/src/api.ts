@@ -43,6 +43,14 @@ export async function addPlant(name: string, species: string, tileX = 0, tileY =
   return handleResponse<Plant>(response);
 }
 
+export async function deletePlant(plantId: string): Promise<void> {
+  const response = await fetch(`${API_BASE_URL}/plants/${plantId}`, {
+    method: 'DELETE',
+    headers: { 'Content-Type': 'application/json' },
+  });
+  await handleResponse<void>(response);
+}
+
 // POST /api/plantevents/{plantId}/water - log a watering event "now".
 export async function waterPlant(plantId: string): Promise<void> {
   const response = await fetch(`${API_BASE_URL}/plantevents/${plantId}/water`, {
@@ -52,3 +60,4 @@ export async function waterPlant(plantId: string): Promise<void> {
   });
   await handleResponse<void>(response);
 }
+

@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { GameWorld } from '../../game/GameWorld';
-import { addPlant } from '../../api';
+import { addPlant, deletePlant } from '../../api';
+import type { Plant } from '../../models/Plant';
 
 interface PendingTile {
   tileX: number;
@@ -15,6 +16,7 @@ export function useGameWorld() {
   const hostRef = useRef<HTMLDivElement>(null);
   const gameWorldRef = useRef<GameWorld | null>(null);
   const [pendingTile, setPendingTile] = useState<PendingTile | null>(null);
+  const [pendingDeletePlant, setPendingDeletePlant] = useState<Plant | null>(null);
   const [placementError, setPlacementError] = useState<string | null>(null);
 
   useEffect(() => {
@@ -22,6 +24,10 @@ export function useGameWorld() {
       onPlacementCandidate: (tileX, tileY) => {
         setPlacementError(null);
         setPendingTile({ tileX, tileY });
+      },
+      onDeleteCandidate: (plantId, plantName) => {
+        setPlacementError(null);
+        setPendingDeletePlant({ id: plantId, name: plantName } as Plant);
       },
       onPlacementBlocked: (reason) => {
         setPlacementError(reason);
@@ -51,9 +57,25 @@ export function useGameWorld() {
       .catch(() => setPlacementError('Could not add plant.'));
   }
 
+  function confirmDeletion(plantId: string) {
+    if (!pendingDeletePlant) return;
+
+    deletePlant(plantId)
+      .then(() => {
+        gameWorldRef.current?.deletePlant(plantId);
+        setPendingDeletePlant(null);
+        setPlacementError(null);
+      })
+      .catch(() => setPlacementError('Could not delete plant.'));
+  }
+
   function cancelPlacement() {
     setPendingTile(null);
   }
 
-  return { hostRef, pendingTile, placementError, confirmPlacement, cancelPlacement };
+  function cancelDeletion() {
+    setPendingDeletePlant(null);
+  }
+
+  return { hostRef, pendingTile, pendingDeletePlant, placementError, confirmPlacement, confirmDeletion, cancelPlacement, cancelDeletion };
 }
