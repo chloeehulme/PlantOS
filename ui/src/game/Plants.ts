@@ -46,6 +46,20 @@ export class PlantsLayer {
     return this.container;
   }
 
+  removePlant(plantId: string): void {  
+    const plant = this.plants.find(p => p.id === plantId);
+    if (!plant) return;
+
+    const child = this.container.children.find(child => {
+      const { x, y } = child.position;
+      return x === plant.tileX * this.tileSize && y === plant.tileY * this.tileSize;
+    });
+    
+    if (child) {
+      this.container.removeChild(child);
+    }
+  }
+
   getContainer(): Container {
     return this.container;
   }

@@ -24,6 +24,9 @@ export interface GameWorldCallbacks {
   // Fired when a click lands on a free, walkable tile - the host UI should
   // ask the player for a name/species and then call `addPlant`.
   onPlacementCandidate(tileX: number, tileY: number): void;
+
+
+  onDeleteCandidate(plantId: string, plantName: string): void;
   // Fired when a click can't place a plant (wall/water tile, or one already
   // occupied) so the host UI can show why.
   onPlacementBlocked(reason: string): void;
@@ -162,7 +165,8 @@ export class GameWorld {
       }
 
       if (isPlantAt(this.plants, tileX, tileY)) {
-        this.callbacks.onPlacementBlocked('There is already a plant on that tile.');
+        const plant = this.plants.find(plant => plant.tileX === tileX && plant.tileY === tileY);
+        this.callbacks.onDeleteCandidate(plant?.id ?? '', plant?.name ?? '');
         return;
       }
 
@@ -189,6 +193,11 @@ export class GameWorld {
   addPlant(plant: Plant): void {
     this.plants.push(plant);
     this.plantsLayer?.render();
+  }
+
+  deletePlant(plantId: string): void {
+    this.plants = this.plants.filter(plant => plant.id !== plantId);
+    this.plantsLayer?.removePlant(plantId);
   }
 
   destroy(): void {

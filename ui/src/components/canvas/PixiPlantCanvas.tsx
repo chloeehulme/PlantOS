@@ -11,7 +11,10 @@ import { PlantPlacementForm } from './PlantPlacementForm';
 // (see game/GameWorld.ts), wired up here via the `useGameWorld` hook.
 // -----------------------------------------------------------------------------
 export function PixiPlantCanvas() {
-  const { hostRef, pendingTile, placementError, confirmPlacement, cancelPlacement } = useGameWorld();
+  const { hostRef, pendingTile, placementError, 
+    confirmPlacement, cancelPlacement, 
+    pendingDeletePlant, confirmDeletion, 
+    cancelDeletion } = useGameWorld();
 
   return (
     <div className="pixi-canvas-wrapper">
@@ -24,6 +27,16 @@ export function PixiPlantCanvas() {
           onConfirm={confirmPlacement}
           onCancel={cancelPlacement}
         />
+      )}
+
+      {pendingDeletePlant && (
+        <div className="plant-deletion-confirmation">
+          <p>Delete plant "{pendingDeletePlant.name}"?</p>
+          <div className="plant-deletion-actions">
+            <button onClick={() => confirmDeletion(pendingDeletePlant.id)}>Yes</button>
+            <button onClick={cancelDeletion}>No</button>
+          </div>
+        </div>
       )}
 
       {placementError && <div className="plant-placement-error">{placementError}</div>}
