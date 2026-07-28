@@ -9,6 +9,14 @@ export function isPlantAt(plants: Plant[], tileX: number, tileY: number): boolea
   return plants.some((plant) => plant.tileX === tileX && plant.tileY === tileY);
 }
 
+export function getNearbyPlant(plants: Plant[], tileX: number, tileY: number, radius: number): Plant | null {
+  return plants.find((plant) => {
+    const dx = plant.tileX - tileX;
+    const dy = plant.tileY - tileY;
+    return dx * dx + dy * dy <= radius * radius;
+  }) ?? null;
+}
+
 // Renders every plant as a simple coloured square at its tile position.
 // Mirrors the TileMap/Player rendering pattern - no image assets, no per-plant
 // state or updates, just a static layer built once from the fetched plants.

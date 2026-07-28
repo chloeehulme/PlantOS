@@ -1,6 +1,6 @@
 import { Application } from 'pixi.js';
 import { TileMap } from './TileMap';
-import { Player, type Direction } from './Player';
+import { getApproachedPlant, Player, type Direction } from './Player';
 import { PlantsLayer, isPlantAt } from './Plants';
 import { MAP_DATA, CANVAS_WIDTH, CANVAS_HEIGHT, TILE_SIZE } from './mapData';
 import { fetchPlants } from '../api';
@@ -27,9 +27,12 @@ export interface GameWorldCallbacks {
 
 
   onDeleteCandidate(plantId: string, plantName: string): void;
+
   // Fired when a click can't place a plant (wall/water tile, or one already
   // occupied) so the host UI can show why.
   onPlacementBlocked(reason: string): void;
+
+  onApproachingPlant(plant: Plant | null): void;
 }
 
 // Owns the PixiJS Application and every game-world object (tile map, player,
@@ -183,6 +186,9 @@ export class GameWorld {
       if (this.lastMoveTime >= MOVE_COOLDOWN_MS && this.tileMap && this.player) {
         this.player.update(this.currentDirection, this.tileMap, this.plants);
         this.lastMoveTime = 0;
+
+        const { x, y } = this.player.getTilePosition();
+        this.callbacks.onApproachingPlant(getApproachedPlant(this.plants, x, y));
       }
     };
     this.app.ticker.add(this.onGameTick);

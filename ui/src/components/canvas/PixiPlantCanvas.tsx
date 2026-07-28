@@ -1,5 +1,6 @@
 import { useGameWorld } from './useGameWorld';
 import { PlantPlacementForm } from './PlantPlacementForm';
+import { TILE_SIZE } from '../../game/mapData';
 
 // -----------------------------------------------------------------------------
 // PixiPlantCanvas
@@ -14,7 +15,7 @@ export function PixiPlantCanvas() {
   const { hostRef, pendingTile, placementError, 
     confirmPlacement, cancelPlacement, 
     pendingDeletePlant, confirmDeletion, 
-    cancelDeletion } = useGameWorld();
+    cancelDeletion, approachingPlant } = useGameWorld();
 
   return (
     <div className="pixi-canvas-wrapper">
@@ -36,6 +37,20 @@ export function PixiPlantCanvas() {
             <button onClick={() => confirmDeletion(pendingDeletePlant.id)}>Yes</button>
             <button onClick={cancelDeletion}>No</button>
           </div>
+        </div>
+      )}
+
+      {approachingPlant && (
+        <div
+          className="plant-water-tooltip"
+          style={{
+            position: 'absolute',
+            left: approachingPlant.tileX * TILE_SIZE + TILE_SIZE / 2,
+            top: approachingPlant.tileY * TILE_SIZE,
+            transform: 'translate(-50%, -100%)',
+          }}
+        >
+          Water me!
         </div>
       )}
 

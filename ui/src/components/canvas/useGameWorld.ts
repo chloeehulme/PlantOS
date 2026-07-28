@@ -18,6 +18,7 @@ export function useGameWorld() {
   const [pendingTile, setPendingTile] = useState<PendingTile | null>(null);
   const [pendingDeletePlant, setPendingDeletePlant] = useState<Plant | null>(null);
   const [placementError, setPlacementError] = useState<string | null>(null);
+  const [approachingPlant, setApproachingPlant] = useState<Plant | null>(null);
 
   useEffect(() => {
     const gameWorld = new GameWorld({
@@ -33,6 +34,9 @@ export function useGameWorld() {
         setPlacementError(reason);
         setPendingTile(null);
       },
+      onApproachingPlant: (plant) => {
+        setApproachingPlant(plant); 
+      }
     });
     gameWorldRef.current = gameWorld;
 
@@ -77,5 +81,7 @@ export function useGameWorld() {
     setPendingDeletePlant(null);
   }
 
-  return { hostRef, pendingTile, pendingDeletePlant, placementError, confirmPlacement, confirmDeletion, cancelPlacement, cancelDeletion };
+  return { hostRef, pendingTile, pendingDeletePlant, placementError, 
+    confirmPlacement, confirmDeletion, cancelPlacement, 
+    cancelDeletion, approachingPlant };
 }
