@@ -19,6 +19,7 @@ export function useGameWorld() {
   const [pendingDeletePlant, setPendingDeletePlant] = useState<Plant | null>(null);
   const [placementError, setPlacementError] = useState<string | null>(null);
   const [approachingPlant, setApproachingPlant] = useState<Plant | null>(null);
+  const [interactionMenuState, setInteractionMenuState] = useState<'open' | 'closed'>('closed');
 
   useEffect(() => {
     const gameWorld = new GameWorld({
@@ -36,6 +37,11 @@ export function useGameWorld() {
       },
       onApproachingPlant: (plant) => {
         setApproachingPlant(plant); 
+      },
+      onInteractionWithPlant: () => {
+        setInteractionMenuState('open');
+        gameWorldRef.current!.isEKeyPressed = false; // Reset the flag after handling the interaction
+        console.log('Interaction menu opened');
       }
     });
     gameWorldRef.current = gameWorld;
@@ -83,5 +89,5 @@ export function useGameWorld() {
 
   return { hostRef, pendingTile, pendingDeletePlant, placementError, 
     confirmPlacement, confirmDeletion, cancelPlacement, 
-    cancelDeletion, approachingPlant };
+    cancelDeletion, approachingPlant, interactionMenuState, setInteractionMenuState };
 }

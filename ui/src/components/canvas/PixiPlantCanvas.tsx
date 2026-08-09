@@ -1,6 +1,8 @@
 import { useGameWorld } from './useGameWorld';
 import { PlantPlacementForm } from './PlantPlacementForm';
 import { TILE_SIZE } from '../../game/mapData';
+import { useEffect } from 'react';
+import '../../styles/plant.css';
 
 // -----------------------------------------------------------------------------
 // PixiPlantCanvas
@@ -15,7 +17,14 @@ export function PixiPlantCanvas() {
   const { hostRef, pendingTile, placementError, 
     confirmPlacement, cancelPlacement, 
     pendingDeletePlant, confirmDeletion, 
-    cancelDeletion, approachingPlant } = useGameWorld();
+    cancelDeletion, approachingPlant, interactionMenuState,
+    setInteractionMenuState } = useGameWorld();
+
+  useEffect(() => {
+    if (!approachingPlant) {
+      setInteractionMenuState('closed');
+    }
+  }, [approachingPlant, setInteractionMenuState]);
 
   return (
     <div className="pixi-canvas-wrapper">
@@ -42,7 +51,7 @@ export function PixiPlantCanvas() {
 
       {approachingPlant && (
         <div
-          className="plant-water-tooltip"
+          className="plant-name"
           style={{
             position: 'absolute',
             left: approachingPlant.tileX * TILE_SIZE + TILE_SIZE / 2,
@@ -50,7 +59,14 @@ export function PixiPlantCanvas() {
             transform: 'translate(-50%, -100%)',
           }}
         >
-          Water me!
+          <p>{approachingPlant.name}</p>
+        </div>
+      )}
+
+      {interactionMenuState === 'open' && approachingPlant && (
+        <div className="interaction-menu">
+          <p>Interacting with plant: {approachingPlant?.name}</p>
+          <button onClick={() => setInteractionMenuState('closed')}>Close</button>
         </div>
       )}
 

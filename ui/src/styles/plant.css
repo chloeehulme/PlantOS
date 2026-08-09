@@ -1,0 +1,47 @@
+.plant-name {
+    position: absolute;
+    transform: translateX(-50%);
+
+    padding: 3px 7px;
+    border-radius: 999px;
+
+    background: rgba(255, 255, 255, 0.94);
+    color: #4b5563;
+
+    border: 1px solid rgba(229, 231, 235, 0.8);
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+
+    font-size: 11px;
+    font-weight: 500;
+    line-height: 1.2;
+
+    white-space: nowrap;
+    pointer-events: none;
+    z-index: 10;
+}
+
+.plant-name::after {
+    content: "";
+
+    position: absolute;
+    left: 50%;
+    bottom: -5px;
+
+    width: 8px;
+    height: 8px;
+
+    background: #ffffff;
+    border-right: 1px solid #e5e7eb;
+    border-bottom: 1px solid #e5e7eb;
+
+    transform: translateX(-50%) rotate(45deg);
+}
+
+.interaction-menu {
+    position: absolute;
+    z-index: 100;
+
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+}

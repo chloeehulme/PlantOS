@@ -6,7 +6,7 @@ import { MAP_DATA, CANVAS_WIDTH, CANVAS_HEIGHT, TILE_SIZE } from './mapData';
 import { fetchPlants } from '../api';
 import type { Plant } from '../models/Plant';
 
-const MOVE_COOLDOWN_MS = 200; // milliseconds between player movements
+const MOVE_COOLDOWN_MS = 100; // milliseconds between player movements
 
 const MOVEMENT_KEYS = new Set(['arrowup', 'arrowdown', 'arrowleft', 'arrowright', 'w', 'a', 's', 'd']);
 
@@ -33,6 +33,8 @@ export interface GameWorldCallbacks {
   onPlacementBlocked(reason: string): void;
 
   onApproachingPlant(plant: Plant | null): void;
+
+  onInteractionWithPlant(): void;
 }
 
 // Owns the PixiJS Application and every game-world object (tile map, player,
@@ -63,6 +65,7 @@ export class GameWorld {
   private destroyed = false;
   private ready = false;
   private callbacks: GameWorldCallbacks;
+  isEKeyPressed: boolean = false;
 
   constructor(callbacks: GameWorldCallbacks) {
     this.callbacks = callbacks;
@@ -131,9 +134,13 @@ export class GameWorld {
       } else if (key === 'arrowright' || key === 'd') {
         this.currentDirection = 'right';
         event.preventDefault();
+      } else if (key === 'e' || key === 'E') {
+        this.isEKeyPressed = true;
+        event.preventDefault();
       }
     };
 
+    // Reset the current direction when the key is released so the player stops
     this.handleKeyUp = (event: KeyboardEvent) => {
       if (isTypingIntoTextField(event.target)) return;
 
@@ -188,7 +195,12 @@ export class GameWorld {
         this.lastMoveTime = 0;
 
         const { x, y } = this.player.getTilePosition();
-        this.callbacks.onApproachingPlant(getApproachedPlant(this.plants, x, y));
+        const approachedPlant = getApproachedPlant(this.plants, x, y);
+        this.callbacks.onApproachingPlant(approachedPlant);
+        // if player clicks letter 'E' key while approaching plant, log the plant's name to the console
+        if (this.isEKeyPressed && approachedPlant) {
+          this.callbacks.onInteractionWithPlant();
+        }
       }
     };
     this.app.ticker.add(this.onGameTick);
