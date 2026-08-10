@@ -1,15 +1,16 @@
 import type { PlantDetails as PlantDetailsData } from '../../models/PlantEvent';
 import { PlantEventTypeLabels } from '../../models/PlantEvent';
+import '../../styles/plantDetailsSidebar.css';
 
 interface PlantDetailsProps {
   plant: PlantDetailsData | null;
-  onWaterPlant: () => void;
-  isWatering: boolean;
+  onClose: () => void;
+  side: 'left' | 'right';
 }
 
 // Right-hand panel: shows the selected plant's details and event history,
 // plus a button to log a watering event via the API.
-export function PlantDetails({ plant, onWaterPlant, isWatering }: PlantDetailsProps) {
+export function PlantDetails({ plant, onClose, side }: PlantDetailsProps) {
   if (!plant) {
     return (
       <div className="plant-details">
@@ -24,22 +25,47 @@ export function PlantDetails({ plant, onWaterPlant, isWatering }: PlantDetailsPr
   );
 
   return (
-    <div className="plant-details">
-      <h2>{plant.name}</h2>
-      <p className="species">{plant.species}</p>
+    <div className={`plant-events-sidebar plant-events-sidebar-${side}`}>
+      <div className="plant-events-sidebar-header">
+        <div>
+          <h2>{plant.name}</h2>
+          <p className="plant-events-sidebar-species">
+            <i>{plant.species}</i>
+          </p>
+        </div>
 
-      <button type="button" onClick={onWaterPlant} disabled={isWatering}>
-        {isWatering ? 'Watering...' : 'Water Plant'}
-      </button>
+        <button
+          className="plant-events-sidebar-close"
+          onClick={onClose}
+        >
+          &times;
+        </button>
+      </div>
 
       <h3>Event history</h3>
-      {sortedEvents.length === 0 && <p className="placeholder">No events yet.</p>}
-      <ul className="event-history">
+
+      {sortedEvents.length === 0 && (
+        <p className="plant-events-sidebar-empty">
+          No events yet.
+        </p>
+      )}
+
+      <ul className="plant-events-sidebar-history">
         {sortedEvents.map((event) => (
           <li key={event.id}>
-            <strong>{PlantEventTypeLabels[event.eventType]}</strong>
-            <span className="event-date">{new Date(event.date).toLocaleString()}</span>
-            {event.notes && <p className="event-notes">{event.notes}</p>}
+            <strong>
+              {PlantEventTypeLabels[event.eventType]}
+            </strong>
+
+            <span className="plant-events-sidebar-date">
+              {new Date(event.date).toLocaleString()}
+            </span>
+
+            {event.notes && (
+              <p className="plant-events-sidebar-notes">
+                {event.notes}
+              </p>
+            )}
           </li>
         ))}
       </ul>

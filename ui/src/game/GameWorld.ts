@@ -1,8 +1,8 @@
-import { Application } from 'pixi.js';
+import { Application, Container } from 'pixi.js';
 import { TileMap } from './TileMap';
 import { getApproachedPlant, Player, type Direction } from './Player';
 import { PlantsLayer, isPlantAt } from './Plants';
-import { MAP_DATA, CANVAS_WIDTH, CANVAS_HEIGHT, TILE_SIZE } from './mapData';
+import { MAP_DATA, TILE_SIZE } from './mapData';
 import { fetchPlants } from '../api';
 import type { Plant } from '../models/Plant';
 
@@ -25,9 +25,6 @@ export interface GameWorldCallbacks {
   // ask the player for a name/species and then call `addPlant`.
   onPlacementCandidate(tileX: number, tileY: number): void;
 
-
-  onDeleteCandidate(plantId: string, plantName: string): void;
-
   // Fired when a click can't place a plant (wall/water tile, or one already
   // occupied) so the host UI can show why.
   onPlacementBlocked(reason: string): void;
@@ -44,6 +41,10 @@ export interface GameWorldCallbacks {
 // teardown. This mirrors the TileMap/Player/PlantsLayer classes it composes.
 export class GameWorld {
   private app = new Application();
+
+  private worldContainer = new Container();
+  private worldScale = 1;
+
   private tileMap: TileMap | null = null;
   private plants: Plant[] = [];
   private plantsLayer: PlantsLayer | null = null;
@@ -72,44 +73,68 @@ export class GameWorld {
   }
 
   async init(host: HTMLElement): Promise<void> {
-    // Pixi v8 uses an async init() instead of a constructor option object.
     await this.app.init({
-      width: CANVAS_WIDTH,
-      height: CANVAS_HEIGHT,
-      background: '#2d5016', // dark green background for the room
-      antialias: true,
+        resizeTo: host,
+        background: '#2d5016',
+        antialias: true,
     });
 
-    // If we were destroyed while awaiting init, destroy the (now-initialised)
-    // app ourselves and bail out - whoever called destroy() couldn't do this
-    // safely since init() hadn't resolved yet.
     if (this.destroyed) {
-      this.app.destroy(true, { children: true });
-      return;
+        this.app.destroy(true, { children: true });
+        return;
     }
 
     this.ready = true;
     host.appendChild(this.app.canvas);
 
-    // --- Initialize the tile map, plants, and player ------------------------
-    this.tileMap = new TileMap(MAP_DATA);
-    this.app.stage.addChild(this.tileMap.render());
+    // ---------------------------------------------------------------------
+    // Calculate the actual map size in game pixels
+    // ---------------------------------------------------------------------
+    const mapWidth = MAP_DATA[0].length * TILE_SIZE;
+    const mapHeight = MAP_DATA.length * TILE_SIZE;
 
-    // Load plants from the API so they can be rendered on the map and block
-    // player movement onto their tile. Fail soft - if the API is
-    // unreachable, the game world still works, just with no plants.
+    // ---------------------------------------------------------------------
+    // Scale the whole world so the entire map fits the canvas
+    // ---------------------------------------------------------------------
+    const scaleX = this.app.screen.width / mapWidth;
+    const scaleY = this.app.screen.height / mapHeight;
+
+    this.worldScale = Math.min(scaleX, scaleY);
+
+    this.worldContainer.scale.set(this.worldScale);
+
+    // Centre the map in the canvas
+    this.worldContainer.x =
+        (this.app.screen.width - mapWidth * this.worldScale) / 2;
+
+    this.worldContainer.y =
+        (this.app.screen.height - mapHeight * this.worldScale) / 2;
+
+    this.app.stage.addChild(this.worldContainer);
+
+    // ---------------------------------------------------------------------
+    // Tile map
+    // ---------------------------------------------------------------------
+    this.tileMap = new TileMap(MAP_DATA);
+    this.worldContainer.addChild(this.tileMap.render());
+
+    // ---------------------------------------------------------------------
+    // Plants
+    // ---------------------------------------------------------------------
     try {
-      this.plants = await fetchPlants();
+        this.plants = await fetchPlants();
     } catch {
-      this.plants = [];
+        this.plants = [];
     }
 
     this.plantsLayer = new PlantsLayer(this.plants);
-    this.app.stage.addChild(this.plantsLayer.render());
+    this.worldContainer.addChild(this.plantsLayer.render());
 
-    // Start the player near the center of the map (position 7, 6 on a 15x13 map)
+    // ---------------------------------------------------------------------
+    // Player
+    // ---------------------------------------------------------------------
     this.player = new Player(7, 6);
-    this.app.stage.addChild(this.player.getContainer());
+    this.worldContainer.addChild(this.player.getContainer());
 
     this.attachKeyboardListeners();
     this.attachClickListener();
@@ -134,7 +159,7 @@ export class GameWorld {
       } else if (key === 'arrowright' || key === 'd') {
         this.currentDirection = 'right';
         event.preventDefault();
-      } else if (key === 'e' || key === 'E') {
+      } else if (key === 'e') {
         this.isEKeyPressed = true;
         event.preventDefault();
       }
@@ -155,35 +180,54 @@ export class GameWorld {
     window.addEventListener('keyup', this.handleKeyUp);
   }
 
-  // --- Click-to-place: click a tile to add a plant there --------------------
-  // Deliberately simple: reuses tileMap.isWalkable and isPlantAt so a plant
-  // can't be dropped on a wall/water tile or on top of another plant. The
-  // actual name/species collection happens in the host UI (see
-  // `GameWorldCallbacks`), not here - this class only decides whether a click
-  // is a valid placement candidate.
   private attachClickListener(): void {
     this.handleCanvasClick = (event: MouseEvent) => {
       if (!this.tileMap) return;
 
       const rect = this.app.canvas.getBoundingClientRect();
-      const tileX = Math.floor((event.clientX - rect.left) / TILE_SIZE);
-      const tileY = Math.floor((event.clientY - rect.top) / TILE_SIZE);
+
+      // Convert browser coordinates to Pixi's logical screen coordinates.
+      const scaleX = this.app.screen.width / rect.width;
+      const scaleY = this.app.screen.height / rect.height;
+
+      const screenX =
+        (event.clientX - rect.left) * scaleX;
+
+      const screenY =
+        (event.clientY - rect.top) * scaleY;
+
+      // Convert screen coordinates back into world coordinates.
+      const worldX =
+        (screenX - this.worldContainer.x) /
+        this.worldContainer.scale.x;
+
+      const worldY =
+        (screenY - this.worldContainer.y) /
+        this.worldContainer.scale.y;
+
+      // Convert world coordinates into tile coordinates.
+      const tileX = Math.floor(worldX / TILE_SIZE);
+      const tileY = Math.floor(worldY / TILE_SIZE);
 
       if (!this.tileMap.isWalkable(tileX, tileY)) {
-        this.callbacks.onPlacementBlocked('Plants can only be placed on grass, path, or wood tiles.');
+        this.callbacks.onPlacementBlocked(
+          'Plants can only be placed on grass, path, or wood tiles.'
+        );
         return;
       }
 
       if (isPlantAt(this.plants, tileX, tileY)) {
-        const plant = this.plants.find(plant => plant.tileX === tileX && plant.tileY === tileY);
-        this.callbacks.onDeleteCandidate(plant?.id ?? '', plant?.name ?? '');
+        this.plants.find(plant => plant.tileX === tileX && plant.tileY === tileY);
         return;
       }
 
       this.callbacks.onPlacementCandidate(tileX, tileY);
     };
 
-    this.app.canvas.addEventListener('click', this.handleCanvasClick);
+    this.app.canvas.addEventListener(
+      'click',
+      this.handleCanvasClick
+    );
   }
 
   // --- Game loop: update player position each frame -------------------------

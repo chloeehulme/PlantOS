@@ -1,47 +1,64 @@
-.plant-name {
-    position: absolute;
-    transform: translateX(-50%);
+.plant-tooltip {
+    min-width: 120px;
+    padding: 7px 11px;
 
-    padding: 3px 7px;
-    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.95);
+    border: 1px solid #ddd;
+    border-radius: 10px;
 
-    background: rgba(255, 255, 255, 0.94);
-    color: #4b5563;
+    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.12);
 
-    border: 1px solid rgba(229, 231, 235, 0.8);
-    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+    font-size: 13px;
+    color: #333;
 
-    font-size: 11px;
-    font-weight: 500;
-    line-height: 1.2;
-
-    white-space: nowrap;
-    pointer-events: none;
     z-index: 10;
+
+    transition:
+        padding 0.15s ease,
+        min-width 0.15s ease;
 }
 
-.plant-name::after {
-    content: "";
-
-    position: absolute;
-    left: 50%;
-    bottom: -5px;
-
-    width: 8px;
-    height: 8px;
-
-    background: #ffffff;
-    border-right: 1px solid #e5e7eb;
-    border-bottom: 1px solid #e5e7eb;
-
-    transform: translateX(-50%) rotate(45deg);
+.plant-tooltip-name {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    font-weight: 500;
+    white-space: nowrap;
+    padding: 10px 15px;
 }
 
-.interaction-menu {
-    position: absolute;
-    z-index: 100;
+.plant-tooltip-species {
+    font-size: 12px;
+    color: #666;
+    margin-top: 15px;
+}
 
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
+.plant-tooltip-options {
+    display: flex;
+    flex-direction: column;
+
+    margin-top: 7px;
+    padding-top: 6px;
+
+    border-top: 1px solid #eee;
+    gap: 2px;
+}
+
+.plant-tooltip-options button {
+    border: none;
+    background: transparent;
+
+    padding: 10px 15px;
+
+    text-align: left;
+    font: inherit;
+    color: #444;
+
+    border-radius: 6px;
+    cursor: pointer;
+}
+
+.plant-tooltip-options button:hover {
+    background: #f3f3f3;
 }

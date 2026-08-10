@@ -40,7 +40,3 @@ export const MAP_DATA: number[][] = [
 // Map dimensions
 export const MAP_WIDTH = MAP_DATA[0].length;  // 15 tiles
 export const MAP_HEIGHT = MAP_DATA.length;    // 13 tiles
-
-// Canvas dimensions
-export const CANVAS_WIDTH = MAP_WIDTH * TILE_SIZE;  // 480px
-export const CANVAS_HEIGHT = MAP_HEIGHT * TILE_SIZE; // 416px
