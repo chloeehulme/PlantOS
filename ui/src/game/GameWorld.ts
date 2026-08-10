@@ -209,7 +209,7 @@ export class GameWorld {
       const tileX = Math.floor(worldX / TILE_SIZE);
       const tileY = Math.floor(worldY / TILE_SIZE);
 
-      if (!this.tileMap.isWalkable(tileX, tileY)) {
+      if (!this.tileMap.isPlantable(tileX, tileY)) {
         this.callbacks.onPlacementBlocked(
           'Plants can only be placed on grass, path, or wood tiles.'
         );

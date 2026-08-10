@@ -2,6 +2,15 @@ import { Container, Graphics } from 'pixi.js';
 import { TILE_SIZE } from './mapData';
 import type { Plant } from '../models/Plant';
 
+const PLANT_SPRITES: Record<string, string> = {
+  RedAnthurium: '/plants/red_anthurium.png',
+  PurpleAnthurium: '/plants/purple_anthurium.png',
+  PinkAnthurium: '/plants/pink_anthurium.png',
+  Pothos: '/plants/pothos.png',
+  Hoya: '/plants/hoya.png',
+  PeaceLily: '/plants/peace_lily.png',
+};
+
 // Dynamic object collision: is there a plant occupying this tile?
 // Kept separate from TileMap.isWalkable (static world collision) on purpose -
 // plants are placed by the player at runtime, not baked into the map layout.
