@@ -1,0 +1,89 @@
+.plant-events-sidebar {
+    position: absolute;
+    top: 0;
+
+    width: 220px;
+    height: 100%;
+
+    background: white;
+    padding: 20px;
+
+    box-sizing: border-box;
+
+    z-index: 20;
+    overflow-y: auto;
+}
+
+.plant-events-sidebar-right {
+    right: 0;
+    box-shadow: -4px 0 12px rgba(0, 0, 0, 0.15);
+}
+
+.plant-events-sidebar-left {
+    left: 0;
+    box-shadow: 4px 0 12px rgba(0, 0, 0, 0.15);
+}
+
+.plant-events-sidebar-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.plant-events-sidebar-header h2 {
+    margin: 0;
+    font-size: 20px;
+    padding: 5px;
+}
+
+.plant-events-sidebar-species {
+    margin: 12px 0 0;
+    color: #666;
+    font-size: 13px;
+    padding: 5px;
+}
+
+.plant-events-sidebar-close {
+    border: none;
+    background: transparent;
+    font-size: 22px;
+    line-height: 1;
+    cursor: pointer;
+    padding: 2px 4px;
+}
+
+.plant-events-sidebar h3 {
+    margin-top: 24px;
+    margin-bottom: 10px;
+    padding: 5px;
+}
+
+.plant-events-sidebar-history {
+    list-style: none;
+    margin: 0;
+    padding: 5px;
+    font-size: 12px;
+}
+
+.plant-events-sidebar-history li {
+    padding: 15px 0;
+    border-bottom: 1px solid #eee;
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+}
+
+.plant-events-sidebar-date {
+    font-size: 12px;
+    color: #888;
+}
+
+.plant-events-sidebar-notes {
+    margin: 4px 0 0;
+    font-size: 13px;
+}
+
+.plant-events-sidebar-empty {
+    color: #888;
+    font-size: 14px;
+}

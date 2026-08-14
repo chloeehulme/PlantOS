@@ -8,10 +8,31 @@ PlantOS is a fun way for me to keep better track of my plants (killed a few too 
 
 Here are the next few things I want to work through:
 
-1. Add a README
-2. Add Copilot agents
-3. Get started on background workers
-4. More robust exception handling
+## Plant Interaction UI
+
+- Display plant name and species when player approaches
+- Add `[E] Interact` prompt when player is near a plant
+- Add PixiJS plant interaction menu
+  - View Events
+  - Delete Plant
+  - Close
+- Move plant delete confirmation into PixiJS
+- Display plant events inside PixiJS
+
+## PixiJS Game Experience
+
+- Expand PixiJS canvas
+- Remove React plant list
+- Remove React plant details UI
+- Remove React event list
+- Remove React delete confirmation
+
+## Final Cleanup
+
+- Make PixiJS the primary plant interaction experience
+- Verify all plant functionality is accessible through the game world
+- Verify React no longer contains duplicate plant functionality
+- Confirm no API changes are required for this PR
 
 ## Roadmap Overview
 

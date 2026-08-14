@@ -1,10 +1,17 @@
 import { Container, Graphics } from 'pixi.js';
 import { TILE_SIZE } from './mapData';
 import type { TileMap } from './TileMap';
-import { isPlantAt } from './Plants';
+import { getNearbyPlant, isPlantAt } from './Plants';
 import type { Plant } from '../models/Plant';
 
 export type Direction = 'up' | 'down' | 'left' | 'right' | null;
+
+// Checks whether any plant lies within `radius` tiles of (tileX, tileY),
+// regardless of which direction the player is facing/moving - i.e. is the
+// player near a plant at all, not specifically walking towards one.
+export function getApproachedPlant(plants: Plant[], tileX: number, tileY: number, radius = 2): Plant | null {
+  return getNearbyPlant(plants, tileX, tileY, radius);
+}
 
 export class Player {
   private tileX: number;

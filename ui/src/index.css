@@ -13,12 +13,13 @@ body {
 }
 
 .home-page {
-  display: flex;
-  gap: 16px;
-  padding: 16px;
-  min-height: 100vh;
-  align-items: flex-start;
-  position: relative;
+    display: flex;
+    gap: 16px;
+    padding: 16px;
+    height: 100vh;
+    box-sizing: border-box;
+    align-items: stretch;
+    position: relative;
 }
 
 .error-banner {
@@ -118,19 +119,35 @@ body {
 /* Canvas column (centre) */
 .canvas-column {
   flex: 1;
+  min-width: 0;
   display: flex;
   justify-content: center;
+  align-items: stretch;
 }
 
 .pixi-canvas-wrapper {
   position: relative;
+  width: 100%;
+  height: 100%;
 }
 
 .pixi-canvas-host {
+  position: relative;
+  width: 100%;
+  height: 100%;
   border: 1px solid #ddd;
   border-radius: 8px;
   overflow: hidden;
   line-height: 0;
+}
+
+.plant-name,
+.interaction-menu,
+.plant-placement-form,
+.plant-deletion-confirmation,
+.plant-placement-error {
+    position: absolute;
+    z-index: 10;
 }
 
 /* Click-to-place form: appears over the canvas when a valid tile is clicked.

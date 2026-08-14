@@ -1,7 +1,8 @@
 import { useEffect, useRef, useState } from 'react';
 import { GameWorld } from '../../game/GameWorld';
-import { addPlant, deletePlant } from '../../api';
+import { addPlant, deletePlant, waterPlant, fetchPlantDetails } from '../../api';
 import type { Plant } from '../../models/Plant';
+import type { PlantDetails as PlantDetailsData } from '../../models/PlantEvent';
 
 interface PendingTile {
   tileX: number;
@@ -16,23 +17,27 @@ export function useGameWorld() {
   const hostRef = useRef<HTMLDivElement>(null);
   const gameWorldRef = useRef<GameWorld | null>(null);
   const [pendingTile, setPendingTile] = useState<PendingTile | null>(null);
-  const [pendingDeletePlant, setPendingDeletePlant] = useState<Plant | null>(null);
-  const [placementError, setPlacementError] = useState<string | null>(null);
+  const [approachingPlant, setApproachingPlant] = useState<Plant | null>(null);
+  const [interactionMenuState, setInteractionMenuState] = useState<'open' | 'closed'>('closed');
+  const [plantDetails, setPlantDetails] = useState<PlantDetailsData | null>(null);
 
   useEffect(() => {
     const gameWorld = new GameWorld({
       onPlacementCandidate: (tileX, tileY) => {
-        setPlacementError(null);
         setPendingTile({ tileX, tileY });
       },
-      onDeleteCandidate: (plantId, plantName) => {
-        setPlacementError(null);
-        setPendingDeletePlant({ id: plantId, name: plantName } as Plant);
-      },
       onPlacementBlocked: (reason) => {
-        setPlacementError(reason);
         setPendingTile(null);
+        console.error(`Placement blocked: ${reason}`);
       },
+      onApproachingPlant: (plant) => {
+        setApproachingPlant(plant); 
+      },
+      onInteractionWithPlant: () => {
+        setInteractionMenuState('open');
+        gameWorldRef.current!.isEKeyPressed = false; // Reset the flag after handling the interaction
+        console.log('Interaction menu opened');
+      }
     });
     gameWorldRef.current = gameWorld;
 
@@ -52,30 +57,43 @@ export function useGameWorld() {
       .then((newPlant) => {
         gameWorldRef.current?.addPlant(newPlant);
         setPendingTile(null);
-        setPlacementError(null);
       })
-      .catch(() => setPlacementError('Could not add plant.'));
+      .catch(() => console.error('Could not add plant.'));
   }
 
   function confirmDeletion(plantId: string) {
-    if (!pendingDeletePlant) return;
-
     deletePlant(plantId)
       .then(() => {
         gameWorldRef.current?.deletePlant(plantId);
-        setPendingDeletePlant(null);
-        setPlacementError(null);
       })
-      .catch(() => setPlacementError('Could not delete plant.'));
+      .catch(() => console.error('Could not delete plant.'));
   }
 
   function cancelPlacement() {
     setPendingTile(null);
   }
 
-  function cancelDeletion() {
-    setPendingDeletePlant(null);
+  async function handleWaterPlant(plantId: string) {
+    try {
+      await waterPlant(plantId);
+    } catch {
+      console.error('Could not water plant.');
+    }
   }
 
-  return { hostRef, pendingTile, pendingDeletePlant, placementError, confirmPlacement, confirmDeletion, cancelPlacement, cancelDeletion };
+  async function handleViewEvents(plantId: string) {
+    try {
+      const details = await fetchPlantDetails(plantId);
+
+      setPlantDetails(details);
+    } catch {
+      console.error('Could not load plant events.');
+    }
+  }
+
+  return { hostRef, pendingTile, 
+    confirmPlacement, confirmDeletion, cancelPlacement, 
+    approachingPlant, interactionMenuState, setInteractionMenuState, 
+    waterPlant: handleWaterPlant, viewEvents: handleViewEvents,
+    plantDetails };
 }
