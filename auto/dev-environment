@@ -1,0 +1,114 @@
+#!/usr/bin/env bash
+# Starts the PlantOS API and UI (and optionally the MCP server). Ctrl+C stops everything.
+# Usage: auto/dev-environment.sh [--mcp [true|false]]
+
+set -uo pipefail
+
+ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+START_MCP=false
+
+while [[ $# -gt 0 ]]; do
+  case "$1" in
+    --mcp)
+      if [[ "${2:-}" == "true" || "${2:-}" == "false" ]]; then
+        START_MCP="$2"
+        shift
+      else
+        START_MCP=true
+      fi
+      ;;
+    --mcp=*) START_MCP="${1#--mcp=}" ;;
+    -h|--help)
+      sed -n '2,3p' "$0" | sed 's/^# \?//'
+      exit 0
+      ;;
+    *)
+      echo "Unknown argument: $1" >&2
+      exit 1
+      ;;
+  esac
+  shift
+done
+
+# Each service runs in its own process group (job control) so it can be killed as a unit.
+set -m
+PGIDS=()
+SHUTTING_DOWN=false
+
+start() {
+  local name="$1"
+  shift
+  echo "[dev] starting $name"
+  "$@" &
+  PGIDS+=("$!")
+}
+
+shutdown() {
+  $SHUTTING_DOWN && return
+  SHUTTING_DOWN=true
+  trap '' INT TERM
+  echo
+  echo "[dev] shutting down..."
+  local pgid
+  for pgid in "${PGIDS[@]}"; do
+    kill -TERM -- "-$pgid" 2>/dev/null || true
+  done
+  # Give services a few seconds to exit, then force-kill stragglers.
+  local i
+  for i in {1..10}; do
+    local alive=false
+    for pgid in "${PGIDS[@]}"; do
+      kill -0 -- "-$pgid" 2>/dev/null && alive=true
+    done
+    $alive || break
+    sleep 0.5
+  done
+  for pgid in "${PGIDS[@]}"; do
+    kill -KILL -- "-$pgid" 2>/dev/null || true
+  done
+  wait 2>/dev/null
+  echo "[dev] stopped"
+}
+
+trap 'shutdown; exit 130' INT TERM
+trap 'shutdown' EXIT
+
+command -v dotnet >/dev/null || { echo "dotnet not found" >&2; exit 1; }
+command -v npm >/dev/null || { echo "npm not found" >&2; exit 1; }
+
+if [[ ! -d "$ROOT/ui/node_modules" ]]; then
+  echo "[dev] installing UI dependencies"
+  (cd "$ROOT/ui" && npm install) || exit 1
+fi
+
+start api bash -c 'cd "$1" && exec dotnet run --launch-profile http' _ "$ROOT/api/PlantOS.API"
+start ui bash -c 'cd "$1" && exec npm run dev' _ "$ROOT/ui"
+
+if [[ "$START_MCP" == "true" ]]; then
+  PYTHON="$ROOT/mcp-server/.venv/bin/python"
+  if ! "$PYTHON" -c "import plantos_mcp; import dotenv" >/dev/null 2>&1; then
+    echo "[dev] (re)creating MCP virtualenv"
+    BASE_PYTHON=""
+    # Prefer the newest version; pyproject requires >=3.10.
+    for candidate in python3.14 python3.13 python3.12 python3.11 python3.10 python3; do
+      if command -v "$candidate" >/dev/null && "$candidate" -c 'import sys; sys.exit(sys.version_info < (3, 10))'; then
+        BASE_PYTHON="$candidate"
+        break
+      fi
+    done
+    [[ -n "$BASE_PYTHON" ]] || { echo "no Python >= 3.10 found" >&2; exit 1; }
+    echo "[dev] using $(command -v "$BASE_PYTHON")"
+    rm -rf "$ROOT/mcp-server/.venv"
+    "$BASE_PYTHON" -m venv "$ROOT/mcp-server/.venv" && "$PYTHON" -m pip install -q -e "$ROOT/mcp-server" || exit 1
+  fi
+  command -v npx >/dev/null || { echo "npx not found" >&2; exit 1; }
+  # The inspector spawns the stdio MCP server itself and opens its web UI.
+  # The MCP server loads mcp-server/.env itself; inherited shell variables take precedence.
+  start mcp-inspector bash -c 'cd "$1" && exec npx -y @modelcontextprotocol/inspector "$2" -m plantos_mcp.server' _ "$ROOT/mcp-server" "$PYTHON"
+fi
+
+echo "[dev] API: http launch profile | UI: see Vite output | MCP: $START_MCP"
+echo "[dev] press Ctrl+C to stop"
+
+# Exit if any service dies on its own.
+wait -n 2>/dev/null || wait

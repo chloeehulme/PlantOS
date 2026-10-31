@@ -32,3 +32,24 @@ obj/
 **/yarn-debug.log*
 **/yarn-error.log*
 **/pnpm-debug.log*
+
+# Python (including the MCP server virtual environment)
+**/__pycache__/
+*.pyc
+mcp-server/.venv/
+**/.env*
+!**/.env.example
+
+# UI-specific logs and editor/project files
+ui/**/logs
+ui/**/*.log
+ui/**/lerna-debug.log*
+ui/**/*.ntvs*
+ui/**/*.njsproj
+ui/**/*.sln
+ui/**/*.sw?
+
+# Preserve the UI's explicitly allowed VS Code extensions file
+!ui/.vscode/
+ui/.vscode/*
+!ui/.vscode/extensions.json

@@ -1,0 +1,20 @@
+[project]
+name = "plantos-mcp"
+version = "0.1.0"
+description = "MCP server exposing PlantOS plant/plant-event data as tools, resources, and prompts for AI assistants."
+requires-python = ">=3.10"
+dependencies = [
+    "mcp>=2.0.0,<3",
+    "httpx>=0.27",
+    "python-dotenv>=1.0",
+]
+
+[project.scripts]
+plantos-mcp = "plantos_mcp.server:main"
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["plantos_mcp"]

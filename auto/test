@@ -1,0 +1,21 @@
+#!/usr/bin/env bash
+# Run all unit-test projects included in the PlantOS solution.
+# Usage: auto/test [dotnet test options]
+
+set -euo pipefail
+
+ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+SOLUTION="$ROOT/api/PlantOS.slnx"
+
+if ! command -v dotnet >/dev/null 2>&1; then
+  echo "dotnet not found. Install the .NET SDK to run the PlantOS tests." >&2
+  exit 1
+fi
+
+if [[ ! -f "$SOLUTION" ]]; then
+  echo "PlantOS solution not found: $SOLUTION" >&2
+  exit 1
+fi
+
+echo "[test] running unit tests in api/PlantOS.slnx"
+exec dotnet test "$SOLUTION" "$@"
