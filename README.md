@@ -15,6 +15,12 @@ The solution is organised into a small layered architecture:
 
 The solution file at the root, PlantOS.slnx, brings these projects together.
 
+## Local Development
+
+Use `auto/dev-environment.sh` to start the API and UI, adding `--mcp` to start the MCP server under `npx @modelcontextprotocol/inspector` as well. The MCP server itself loads `mcp-server/.env` directly, so dotenv loading does not depend on the launcher. A pre-existing exported `PLANTOS_API_BASE_URL` takes precedence over the value in `.env`. The server uses the resulting non-blank value as its API base URL; if it is unset or blank, the default is `http://localhost:5199`. Treat `.env` and exported values as trusted configuration: `PLANTOS_API_BASE_URL` determines which host the MCP server sends its HTTP requests to.
+
+Run `auto/test` to execute the unit-test projects in `api/PlantOS.slnx`. Additional arguments are forwarded to `dotnet test`.
+
 ## Branching Strategy
 
 The project uses a simple Git flow-style approach:
