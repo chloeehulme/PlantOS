@@ -3,18 +3,16 @@ import { TileMap } from './TileMap';
 import { getApproachedPlant, Player, type Direction } from './Player';
 import { PlantsLayer, isPlantAt } from './Plants';
 import { MAP_DATA, TILE_SIZE } from './mapData';
-import { fetchPlants } from '../api';
 import type { Plant } from '../models/Plant';
 
 const MOVE_COOLDOWN_MS = 100; // milliseconds between player movements
 
 const MOVEMENT_KEYS = new Set(['arrowup', 'arrowdown', 'arrowleft', 'arrowright', 'w', 'a', 's', 'd']);
 
-// The movement keydown/keyup listeners are attached to `window` so they work
-// no matter where focus is on the page. That means they need to explicitly
-// ignore keystrokes aimed at a text field (e.g. the sidebar Add Plant form),
-// otherwise typing "w"/"a"/"s"/"d" there would move the player and swallow
-// the keystroke instead of entering it into the input.
+// The movement keydown/keyup listeners are attached to `window`, so they must
+// ignore keystrokes aimed at a text field. In-game Pixi inputs (@pixi/ui)
+// are backed by a hidden native <input>, otherwise typing "w"/"a"/"s"/"d"
+// would move the player and swallow the keystroke.
 function isTypingIntoTextField(target: EventTarget | null): boolean {
   if (!(target instanceof HTMLElement)) return false;
   return target.tagName === 'INPUT' || target.tagName === 'TEXTAREA' || target.isContentEditable;
@@ -32,18 +30,34 @@ export interface GameWorldCallbacks {
   onApproachingPlant(plant: Plant | null): void;
 
   onInteractionWithPlant(): void;
+
+  // True when a screen-space point is over an in-game UI panel, so clicks
+  // there are not treated as clicks on the map.
+  isPointerBlocked(screenX: number, screenY: number): boolean;
+
+  // Fired when the canvas is resized so the host can re-layout its UI.
+  onResize(width: number, height: number): void;
+}
+
+export interface Viewport {
+  x: number;
+  y: number;
+  width: number;
+  height: number;
 }
 
 // Owns the PixiJS Application and every game-world object (tile map, player,
 // plants layer), plus the keyboard/click listeners and game loop that drive
-// them. Kept as a plain class - not a React hook/component - so lifecycle is
-// explicit: the caller just awaits `init()` and calls `destroy()` on
-// teardown. This mirrors the TileMap/Player/PlantsLayer classes it composes.
+// them. Kept as a plain class so lifecycle is explicit: the caller just
+// awaits `init()` and calls `destroy()` on teardown. This mirrors the
+// TileMap/Player/PlantsLayer classes it composes.
 export class GameWorld {
   private app = new Application();
 
   private worldContainer = new Container();
   private worldScale = 1;
+  private viewport: Viewport = { x: 0, y: 0, width: 0, height: 0 };
+  private onRendererResize?: (width: number, height: number) => void;
 
   private tileMap: TileMap | null = null;
   private plants: Plant[] = [];
@@ -56,11 +70,12 @@ export class GameWorld {
   private handleKeyDown?: (event: KeyboardEvent) => void;
   private handleKeyUp?: (event: KeyboardEvent) => void;
   private handleCanvasClick?: (event: MouseEvent) => void;
+  private handleCanvasPointerDown?: (event: PointerEvent) => void;
+  private pressStartedOnUi = false;
   private onGameTick?: (ticker: { deltaMS: number }) => void;
 
-  // `destroyed` guards against React StrictMode's double-effect in dev
-  // (init() starts, destroy() is called before it resolves, init() then
-  // resolves late). `ready` tracks whether app.init() actually finished -
+  // `destroyed` guards against destroy() being called before init() resolves
+  // (e.g. a dev hot reload). `ready` tracks whether app.init() actually finished -
   // Pixi's destroy() throws if called on an Application that hasn't
   // finished initialising yet, so destroy() must not call it until then.
   private destroyed = false;
@@ -72,9 +87,22 @@ export class GameWorld {
     this.callbacks = callbacks;
   }
 
-  async init(host: HTMLElement): Promise<void> {
+  // The UI layer sits above the world; add panels here.
+  readonly uiLayer = new Container();
+
+  get stage(): Container {
+    return this.app.stage;
+  }
+
+  get screenSize(): { width: number; height: number } {
+    return { width: this.app.screen.width, height: this.app.screen.height };
+  }
+
+  async init(host: HTMLElement, initialPlants: Plant[]): Promise<void> {
     await this.app.init({
         resizeTo: host,
+        resolution: window.devicePixelRatio || 1,
+        autoDensity: true,
         background: '#2d5016',
         antialias: true,
     });
@@ -87,28 +115,8 @@ export class GameWorld {
     this.ready = true;
     host.appendChild(this.app.canvas);
 
-    // ---------------------------------------------------------------------
-    // Calculate the actual map size in game pixels
-    // ---------------------------------------------------------------------
-    const mapWidth = MAP_DATA[0].length * TILE_SIZE;
-    const mapHeight = MAP_DATA.length * TILE_SIZE;
-
-    // ---------------------------------------------------------------------
-    // Scale the whole world so the entire map fits the canvas
-    // ---------------------------------------------------------------------
-    const scaleX = this.app.screen.width / mapWidth;
-    const scaleY = this.app.screen.height / mapHeight;
-
-    this.worldScale = Math.min(scaleX, scaleY);
-
-    this.worldContainer.scale.set(this.worldScale);
-
-    // Centre the map in the canvas
-    this.worldContainer.x =
-        (this.app.screen.width - mapWidth * this.worldScale) / 2;
-
-    this.worldContainer.y =
-        (this.app.screen.height - mapHeight * this.worldScale) / 2;
+    this.viewport = { x: 0, y: 0, width: this.app.screen.width, height: this.app.screen.height };
+    this.fitWorld();
 
     this.app.stage.addChild(this.worldContainer);
 
@@ -121,11 +129,7 @@ export class GameWorld {
     // ---------------------------------------------------------------------
     // Plants
     // ---------------------------------------------------------------------
-    try {
-        this.plants = await fetchPlants();
-    } catch {
-        this.plants = [];
-    }
+    this.plants = [...initialPlants];
 
     this.plantsLayer = new PlantsLayer(this.plants);
     this.worldContainer.addChild(this.plantsLayer.render());
@@ -136,9 +140,44 @@ export class GameWorld {
     this.player = new Player(7, 6);
     this.worldContainer.addChild(this.player.getContainer());
 
+    this.app.stage.addChild(this.uiLayer);
+
+    this.onRendererResize = (width, height) => {
+      this.callbacks.onResize(width, height);
+    };
+    this.app.renderer.on('resize', this.onRendererResize);
+
     this.attachKeyboardListeners();
     this.attachClickListener();
     this.startGameLoop();
+  }
+
+  // Scales and centres the whole map inside the free area between the
+  // sidebars.
+  setViewport(viewport: Viewport): void {
+    this.viewport = viewport;
+    this.fitWorld();
+  }
+
+  private fitWorld(): void {
+    const mapWidth = MAP_DATA[0].length * TILE_SIZE;
+    const mapHeight = MAP_DATA.length * TILE_SIZE;
+    const { x, y, width, height } = this.viewport;
+
+    this.worldScale = Math.max(0.01, Math.min(width / mapWidth, height / mapHeight));
+    this.worldContainer.scale.set(this.worldScale);
+    this.worldContainer.x = x + (width - mapWidth * this.worldScale) / 2;
+    this.worldContainer.y = y + (height - mapHeight * this.worldScale) / 2;
+  }
+
+  // Screen-space position of a tile's top-centre and bottom-centre, used to
+  // anchor UI to a plant.
+  tileToScreen(tileX: number, tileY: number): { x: number; top: number; bottom: number } {
+    return {
+      x: this.worldContainer.x + (tileX * TILE_SIZE + TILE_SIZE / 2) * this.worldScale,
+      top: this.worldContainer.y + tileY * TILE_SIZE * this.worldScale,
+      bottom: this.worldContainer.y + (tileY + 1) * TILE_SIZE * this.worldScale,
+    };
   }
 
   // --- Keyboard input handling ---------------------------------------------
@@ -180,9 +219,29 @@ export class GameWorld {
     window.addEventListener('keyup', this.handleKeyUp);
   }
 
+  private toScreenPoint(event: MouseEvent): { x: number; y: number } {
+    const rect = this.app.canvas.getBoundingClientRect();
+    return {
+      x: (event.clientX - rect.left) * (this.app.screen.width / rect.width),
+      y: (event.clientY - rect.top) * (this.app.screen.height / rect.height),
+    };
+  }
+
   private attachClickListener(): void {
+    // A panel button may hide its panel on pointerup, before the canvas 'click'
+    // fires; remembering where the press started stops it hitting the map.
+    this.handleCanvasPointerDown = (event: PointerEvent) => {
+      const { x, y } = this.toScreenPoint(event);
+      this.pressStartedOnUi = this.callbacks.isPointerBlocked(x, y);
+    };
+    this.app.canvas.addEventListener('pointerdown', this.handleCanvasPointerDown);
+
     this.handleCanvasClick = (event: MouseEvent) => {
       if (!this.tileMap) return;
+      if (this.pressStartedOnUi) {
+        this.pressStartedOnUi = false;
+        return;
+      }
 
       const rect = this.app.canvas.getBoundingClientRect();
 
@@ -195,6 +254,8 @@ export class GameWorld {
 
       const screenY =
         (event.clientY - rect.top) * scaleY;
+
+      if (this.callbacks.isPointerBlocked(screenX, screenY)) return;
 
       // Convert screen coordinates back into world coordinates.
       const worldX =
@@ -265,10 +326,12 @@ export class GameWorld {
   destroy(): void {
     this.destroyed = true;
 
+    if (this.onRendererResize) this.app.renderer.off('resize', this.onRendererResize);
     if (this.onGameTick) this.app.ticker.remove(this.onGameTick);
     if (this.handleKeyDown) window.removeEventListener('keydown', this.handleKeyDown);
     if (this.handleKeyUp) window.removeEventListener('keyup', this.handleKeyUp);
     if (this.handleCanvasClick) this.app.canvas.removeEventListener('click', this.handleCanvasClick);
+    if (this.handleCanvasPointerDown) this.app.canvas.removeEventListener('pointerdown', this.handleCanvasPointerDown);
 
     // Only safe to destroy once init() has actually finished; if not, the
     // `if (this.destroyed)` branch inside init() will handle it instead.
