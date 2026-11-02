@@ -21,6 +21,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="../PlantOS.API/PlantOS.API.csproj" />
     <ProjectReference Include="../PlantOS.Core/PlantOS.Core.csproj" />
     <ProjectReference Include="../PlantOS.Infrastructure/PlantOS.Infrastructure.csproj" />
   </ItemGroup>

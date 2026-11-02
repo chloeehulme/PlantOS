@@ -2,37 +2,38 @@
 
 ## Vision
 
-PlantOS is a fun way for me to keep better track of my plants (killed a few too many) and to train my C# muscles. I’d like to keep growing it into something more useful over time, and my goal is to continue working on this little by little. Right now I’m focusing on building a stronger foundation, but longer term I’d love to add smarter care guidance, outdoor gardening support, and eventually even beekeeping features (my dream).
+PlantOS is a fun way for me to keep better track of my plants (killed a few too many) and to train my C# muscles. I’d like to keep growing it into something more useful over time, and my goal is to continue working on this little by little. Right now I’m focusing on making the core experience feel like a cohesive game while continuing to strengthen the foundation. Longer term I’d love to add smarter care guidance, outdoor gardening support, and eventually even beekeeping features (my dream).
 
 ## Current Focus / Immediate TODOs
 
-Here are the next few things I want to work through:
+The immediate priority is to make PlantOS feel like a cohesive game before adding more care automation.
 
-## Plant Interaction UI
+### Interaction Scope: Verify, Then Pause
 
-- Display plant name and species when player approaches
-- Add `[E] Interact` prompt when player is near a plant
-- Add PixiJS plant interaction menu
-  - View Events
-  - Delete Plant
-  - Close
-- Move plant delete confirmation into PixiJS
-- Display plant events inside PixiJS
+- Confirm `[E]` reliably opens the nearby plant's interaction menu
+- Support the basic plant actions: view plant details, add/update/delete care events, and delete a plant
+- Once these work reliably, pause interaction feature work until after the visual experience is in place
+- Avoid expanding the interaction feature set during the full-screen and visual-style milestones
 
-## PixiJS Game Experience
+## 1. Make the PixiJS Game Full-Screen
 
-- Expand PixiJS canvas
-- Remove React plant list
-- Remove React plant details UI
-- Remove React event list
-- Remove React delete confirmation
+- Expand the PixiJS game world to fill the screen
+- Make the game world the primary way to use PlantOS
+- Move remaining player-facing plant features into the game experience
+- Verify all existing plant functionality remains accessible from the game
 
-## Final Cleanup
+## 2. Establish and Apply the Game's Visual Style
 
-- Make PixiJS the primary plant interaction experience
-- Verify all plant functionality is accessible through the game world
-- Verify React no longer contains duplicate plant functionality
-- Confirm no API changes are required for this PR
+- Decide on the visual direction before creating or replacing art assets
+- Apply that direction consistently to the world, tiles, player, plants, and in-game UI
+- Replace placeholder shapes with art that fits the chosen style
+- Polish visual feedback and transitions so interactions feel part of the game
+
+## 3. Add Reminders and Background Work
+
+- Design scheduling and reminder workflows around plant-care events
+- Add background services to process scheduled care reminders
+- Present reminders in a way that fits the game experience
 
 ## Roadmap Overview
 
@@ -48,7 +49,7 @@ Here are the next few things I want to work through:
 
 ### Priority: High — Foundation
 
-These are the things I want to tackle first so the project feels more solid before I add more complexity.
+These foundational items support feature work and should continue alongside the game and care milestones.
 
 - Create a unit test suite on a dedicated feature branch
 - Merge the test suite into main
@@ -64,9 +65,35 @@ These are the things I want to tackle first so the project feels more solid befo
 
 ---
 
-## Phase 2: Care Event Enhancements
+## Phase 2: Full-Screen Game Experience and Visual Style
 
-### Priority: High
+### Priority: High — Current Focus
+
+Make the game world the primary PlantOS experience before adding care automation.
+
+- Expand PixiJS to fill the screen
+- Keep existing plant-management functionality accessible from the game
+- Choose the visual direction, then apply it consistently to the world, characters, plants, and interface
+- Replace placeholder shapes and polish visual feedback to fit that direction
+
+---
+
+## Phase 3: Reminders and Background Work
+
+### Priority: High — After the Game Experience
+
+Once the full-screen game experience and its visual direction are in place, add richer plant-care workflows.
+
+- Explore plant status tracking
+- Add scheduling and reminder capabilities
+- Introduce background services
+- Improve user experience around reminders and care history
+
+---
+
+## Phase 4: Care Event Enhancements
+
+### Priority: Medium — After Reminders
 
 I want to expand the event model so the app becomes more useful for everyday plant care.
 
@@ -80,20 +107,7 @@ I want to expand the event model so the app becomes more useful for everyday pla
 
 ---
 
-## Phase 3: Smarter Plant Care Experience
-
-### Priority: Medium — Care Experience
-
-Once the event system is in place, I want to focus on richer plant care workflows.
-
-- Explore plant status tracking
-- Add scheduling and reminder capabilities
-- Introduce background services
-- Improve user experience around reminders and care history
-
----
-
-## Phase 4: Intelligent Assistance
+## Phase 5: Intelligent Assistance
 
 ### Priority: Medium — Intelligence
 
@@ -105,7 +119,7 @@ I’d like to add some intelligent features that help me make better care decisi
 
 ---
 
-## Phase 5: Broader Gardening Support
+## Phase 6: Broader Gardening Support
 
 ### Priority: Longer term
 
@@ -118,7 +132,7 @@ I’d eventually like to expand PlantOS beyond indoor plant management into broa
 
 ---
 
-## Phase 6: Long-Term Product Expansion
+## Phase 7: Long-Term Product Expansion
 
 ### Priority: Long term
 
@@ -132,13 +146,16 @@ I’d like to broaden the project into adjacent domains over time.
 
 ## Suggested Delivery Order
 
-1. Foundation and test infrastructure
-2. CI and documentation improvements
-3. Event system enhancements
-4. Scheduling, reminders, and background work
-5. AI-powered guidance
-6. Outdoor gardening support
-7. Beekeeping and broader product expansion
+1. Verify the minimum plant interaction and event-management actions work reliably
+2. Make PixiJS the full-screen, primary plant-management experience
+3. Choose and apply the game's visual style
+4. Add scheduling, reminders, and background work
+5. Expand care-event types and workflows
+6. Add AI-powered guidance
+7. Add outdoor gardening support
+8. Explore beekeeping and broader product expansion
+
+Foundation work such as tests, CI, security, and maintainability improvements should continue alongside these feature milestones.
 
 ---
 

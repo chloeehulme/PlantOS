@@ -51,12 +51,27 @@ export async function deletePlant(plantId: string): Promise<void> {
   await handleResponse<void>(response);
 }
 
-// POST /api/plantevents/{plantId}/water - log a watering event "now".
-export async function waterPlant(plantId: string): Promise<void> {
-  const response = await fetch(`${API_BASE_URL}/plantevents/${plantId}/water`, {
+export type AddableEventRoute = 'water' | 'fertilise';
+
+// POST /api/plantevents/{plantId}/{route} - log an event. Omit `occurredAt`
+// to log it "now" (the API defaults to the current UTC time).
+export async function addPlantEvent(
+  plantId: string,
+  route: AddableEventRoute,
+  occurredAt?: Date,
+): Promise<void> {
+  const response = await fetch(`${API_BASE_URL}/plantevents/${plantId}/${route}`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({}),
+    body: JSON.stringify(occurredAt ? { occuredAt: occurredAt.toISOString() } : {}),
+  });
+  await handleResponse<void>(response);
+}
+
+// DELETE /api/plantevents/{plantId}/events/{eventId}
+export async function deletePlantEvent(plantId: string, eventId: string): Promise<void> {
+  const response = await fetch(`${API_BASE_URL}/plantevents/${plantId}/events/${eventId}`, {
+    method: 'DELETE',
   });
   await handleResponse<void>(response);
 }
