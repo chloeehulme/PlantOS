@@ -2,8 +2,15 @@ import { Application, Container } from 'pixi.js';
 import { TileMap } from './TileMap';
 import { getApproachedPlant, Player, type Direction } from './Player';
 import { PlantsLayer, isPlantAt } from './Plants';
-import { MAP_DATA, TILE_SIZE } from './mapData';
+import { MAP_DATA } from './mapData';
+import { getIsoBounds, isoToTile, tileCenterToIso } from './iso';
 import type { Plant } from '../models/Plant';
+
+// Extra space above the map for the tall back walls, and plant sprite metrics
+// used to anchor UI to a plant.
+const WALL_HEADROOM = 64;
+const PLANT_SPRITE_HEIGHT = 64;
+const PLANT_BASE_OFFSET = 8;
 
 const MOVE_COOLDOWN_MS = 100; // milliseconds between player movements
 
@@ -55,6 +62,8 @@ export class GameWorld {
   private app = new Application();
 
   private worldContainer = new Container();
+  // Depth-sorted layer shared by walls/furniture, plants and the player.
+  private entities = new Container();
   private worldScale = 1;
   private viewport: Viewport = { x: 0, y: 0, width: 0, height: 0 };
   private onRendererResize?: (width: number, height: number) => void;
@@ -121,24 +130,29 @@ export class GameWorld {
     this.app.stage.addChild(this.worldContainer);
 
     // ---------------------------------------------------------------------
-    // Tile map
+    // Tile map, plants and player (floor below, everything else depth-sorted)
     // ---------------------------------------------------------------------
+    this.entities.sortableChildren = true;
+
     this.tileMap = new TileMap(MAP_DATA);
+    await this.tileMap.load();
     this.worldContainer.addChild(this.tileMap.render());
+    this.worldContainer.addChild(this.entities);
+    this.entities.addChild(...this.tileMap.getBlocks());
 
-    // ---------------------------------------------------------------------
-    // Plants
-    // ---------------------------------------------------------------------
     this.plants = [...initialPlants];
+    const tileMap = this.tileMap;
+    this.plantsLayer = new PlantsLayer(this.plants, this.entities, (x, y) => tileMap.getTileHeight(x, y));
+    await this.plantsLayer.load();
+    this.plantsLayer.render();
 
-    this.plantsLayer = new PlantsLayer(this.plants);
-    this.worldContainer.addChild(this.plantsLayer.render());
-
-    // ---------------------------------------------------------------------
-    // Player
-    // ---------------------------------------------------------------------
     this.player = new Player(7, 6);
-    this.worldContainer.addChild(this.player.getContainer());
+    this.entities.addChild(this.player.getContainer());
+
+    if (this.destroyed) {
+      this.app.destroy(true, { children: true });
+      return;
+    }
 
     this.app.stage.addChild(this.uiLayer);
 
@@ -160,23 +174,25 @@ export class GameWorld {
   }
 
   private fitWorld(): void {
-    const mapWidth = MAP_DATA[0].length * TILE_SIZE;
-    const mapHeight = MAP_DATA.length * TILE_SIZE;
+    const bounds = getIsoBounds(WALL_HEADROOM);
     const { x, y, width, height } = this.viewport;
 
-    this.worldScale = Math.max(0.01, Math.min(width / mapWidth, height / mapHeight));
+    this.worldScale = Math.max(0.01, Math.min(width / bounds.width, height / bounds.height));
     this.worldContainer.scale.set(this.worldScale);
-    this.worldContainer.x = x + (width - mapWidth * this.worldScale) / 2;
-    this.worldContainer.y = y + (height - mapHeight * this.worldScale) / 2;
+    this.worldContainer.x = x + (width - bounds.width * this.worldScale) / 2 - bounds.minX * this.worldScale;
+    this.worldContainer.y = y + (height - bounds.height * this.worldScale) / 2 - bounds.minY * this.worldScale;
   }
 
-  // Screen-space position of a tile's top-centre and bottom-centre, used to
-  // anchor UI to a plant.
+  // Screen-space anchor for UI attached to a plant: x is the tile centre,
+  // `top` is the top of the plant sprite and `bottom` its base.
   tileToScreen(tileX: number, tileY: number): { x: number; top: number; bottom: number } {
+    const centre = tileCenterToIso(tileX, tileY);
+    const lift = this.tileMap?.getTileHeight(tileX, tileY) ?? 0;
+    const base = centre.y + PLANT_BASE_OFFSET - lift;
     return {
-      x: this.worldContainer.x + (tileX * TILE_SIZE + TILE_SIZE / 2) * this.worldScale,
-      top: this.worldContainer.y + tileY * TILE_SIZE * this.worldScale,
-      bottom: this.worldContainer.y + (tileY + 1) * TILE_SIZE * this.worldScale,
+      x: this.worldContainer.x + centre.x * this.worldScale,
+      top: this.worldContainer.y + (base - PLANT_SPRITE_HEIGHT) * this.worldScale,
+      bottom: this.worldContainer.y + base * this.worldScale,
     };
   }
 
@@ -267,8 +283,7 @@ export class GameWorld {
         this.worldContainer.scale.y;
 
       // Convert world coordinates into tile coordinates.
-      const tileX = Math.floor(worldX / TILE_SIZE);
-      const tileY = Math.floor(worldY / TILE_SIZE);
+      const { tileX, tileY } = isoToTile(worldX, worldY);
 
       if (!this.tileMap.isPlantable(tileX, tileY)) {
         this.callbacks.onPlacementBlocked(
@@ -315,7 +330,7 @@ export class GameWorld {
   // immediately, without re-fetching the whole plant list.
   addPlant(plant: Plant): void {
     this.plants.push(plant);
-    this.plantsLayer?.render();
+    this.plantsLayer?.addPlant(plant);
   }
 
   deletePlant(plantId: string): void {

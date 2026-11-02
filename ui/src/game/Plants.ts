@@ -1,5 +1,5 @@
-import { Container, Graphics } from 'pixi.js';
-import { TILE_SIZE } from './mapData';
+import { Assets, Container, Sprite, Texture } from 'pixi.js';
+import { depthOf, tileCenterToIso } from './iso';
 import type { Plant } from '../models/Plant';
 
 const PLANT_SPRITES: Record<string, string> = {
@@ -10,6 +10,14 @@ const PLANT_SPRITES: Record<string, string> = {
   Hoya: '/plants/hoya.png',
   PeaceLily: '/plants/peace_lily.png',
 };
+
+// Species is free text, so match ignoring case, spaces and punctuation
+// ("Peace Lily" -> PeaceLily); unknown species fall back to the pothos sprite.
+const normalise = (name: string) => name.toLowerCase().replace(/[^a-z]/g, '');
+const SPRITE_BY_SPECIES = new Map(Object.entries(PLANT_SPRITES).map(([k, v]) => [normalise(k), v]));
+
+// Where a plant's pot base sits relative to the tile centre.
+const PLANT_FOOT_OFFSET_Y = 8;
 
 // Dynamic object collision: is there a plant occupying this tile?
 // Kept separate from TileMap.isWalkable (static world collision) on purpose -
@@ -26,58 +34,56 @@ export function getNearbyPlant(plants: Plant[], tileX: number, tileY: number, ra
   }) ?? null;
 }
 
-// Renders every plant as a simple coloured square at its tile position.
-// Mirrors the TileMap/Player rendering pattern - no image assets, no per-plant
-// state or updates, just a static layer built once from the fetched plants.
+// Draws each plant as a sprite standing on its tile. Sprites are added to the
+// shared `parent` (the depth-sorted entities container) so they sort correctly
+// against walls, furniture and the player.
 export class PlantsLayer {
   private plants: Plant[];
-  private tileSize: number;
-  private container: Container;
+  private parent: Container;
+  private getTileHeight: (tileX: number, tileY: number) => number;
+  private sprites = new Map<string, Sprite>();
 
-  constructor(plants: Plant[], tileSize: number = TILE_SIZE) {
+  constructor(
+    plants: Plant[],
+    parent: Container,
+    getTileHeight: (tileX: number, tileY: number) => number,
+  ) {
     this.plants = plants;
-    this.tileSize = tileSize;
-    this.container = new Container();
+    this.parent = parent;
+    this.getTileHeight = getTileHeight;
   }
 
-  render(): Container {
-    this.container.removeChildren();
-
-    for (const plant of this.plants) {
-      const graphic = new Graphics();
-      graphic.fill(0xff4500); // orange-red, distinct from all tile/player colours
-      graphic.rect(6, 6, this.tileSize - 12, this.tileSize - 12);
-      graphic.fill();
-
-      graphic.stroke({ color: 0x8b2500, width: 1 });
-      graphic.rect(6, 6, this.tileSize - 12, this.tileSize - 12);
-      graphic.stroke();
-
-      const pixelX = plant.tileX * this.tileSize;
-      const pixelY = plant.tileY * this.tileSize;
-      graphic.position.set(pixelX, pixelY);
-
-      this.container.addChild(graphic);
-    }
-
-    return this.container;
+  async load(): Promise<void> {
+    const urls = Object.values(PLANT_SPRITES);
+    const textures = await Assets.load<Texture>(urls);
+    for (const url of urls) textures[url].source.scaleMode = 'nearest';
   }
 
-  removePlant(plantId: string): void {  
-    const plant = this.plants.find(p => p.id === plantId);
-    if (!plant) return;
-
-    const child = this.container.children.find(child => {
-      const { x, y } = child.position;
-      return x === plant.tileX * this.tileSize && y === plant.tileY * this.tileSize;
-    });
-    
-    if (child) {
-      this.container.removeChild(child);
-    }
+  render(): void {
+    for (const sprite of this.sprites.values()) sprite.destroy();
+    this.sprites.clear();
+    for (const plant of this.plants) this.addSprite(plant);
   }
 
-  getContainer(): Container {
-    return this.container;
+  addPlant(plant: Plant): void {
+    if (!this.plants.includes(plant)) this.plants.push(plant);
+    if (!this.sprites.has(plant.id)) this.addSprite(plant);
+  }
+
+  removePlant(plantId: string): void {
+    this.plants = this.plants.filter((p) => p.id !== plantId);
+    this.sprites.get(plantId)?.destroy();
+    this.sprites.delete(plantId);
+  }
+
+  private addSprite(plant: Plant): void {
+    const url = SPRITE_BY_SPECIES.get(normalise(plant.species)) ?? PLANT_SPRITES.Pothos;
+    const sprite = new Sprite(Assets.get<Texture>(url));
+    sprite.anchor.set(0.5, 1);
+    const { x, y } = tileCenterToIso(plant.tileX, plant.tileY);
+    sprite.position.set(x, y + PLANT_FOOT_OFFSET_Y - this.getTileHeight(plant.tileX, plant.tileY));
+    sprite.zIndex = depthOf(plant.tileX, plant.tileY, 0.25);
+    this.parent.addChild(sprite);
+    this.sprites.set(plant.id, sprite);
   }
 }

@@ -10,20 +10,17 @@ export const TILE_TYPES = {
   TV: 7,
 } as const;
 
-// Tile size in pixels
-export const TILE_SIZE = 32;
-
 // Tile configuration: color and walkability for each tile type
-export const TILE_CONFIG: Record<number, { color: number; walkable: boolean; plantable: boolean; 
+export const TILE_CONFIG: Record<number, { color: number; walkable: boolean; plantable: boolean; height: number;
   visual: 'floor' | 'carpet' | 'sofa' | 'wall' | 'window' | 'ledge' | 'table' | 'tv'; }> = {
-  [TILE_TYPES.WOODEN_FLOOR]: { color: 0x90ee90, walkable: true, plantable: true, visual: 'floor' },   // light green
-  [TILE_TYPES.CARPET]: { color: 0xd2b48c, walkable: true, plantable: true, visual: 'carpet' },    // tan/brown
-  [TILE_TYPES.SOFA]: { color: 0x4a90e2, walkable: false, plantable: false, visual: 'sofa' },  // blue
-  [TILE_TYPES.WALL]: { color: 0x808080, walkable: false, plantable: false, visual: 'wall' },   // gray
-  [TILE_TYPES.WINDOW]: { color: 0xa0522d, walkable: false, plantable: true, visual: 'window' },    // sienna brown
-  [TILE_TYPES.LEDGE]: { color: 0x808097, walkable: false, plantable: true, visual: 'ledge' },
-  [TILE_TYPES.TABLE]: { color: 0x8b4513, walkable: false, plantable: true, visual: 'table' },    // saddle brown
-  [TILE_TYPES.TV]: { color: 0x000000, walkable: false, plantable: false, visual: 'tv' },      // black
+  [TILE_TYPES.WOODEN_FLOOR]: { color: 0x90ee90, walkable: true, plantable: true, height: 0, visual: 'floor' },   // light green
+  [TILE_TYPES.CARPET]: { color: 0xd2b48c, walkable: true, plantable: true, height: 0, visual: 'carpet' },    // tan/brown
+  [TILE_TYPES.SOFA]: { color: 0x4a90e2, walkable: false, plantable: false, height: 20, visual: 'sofa' },  // blue
+  [TILE_TYPES.WALL]: { color: 0xd9c7b5, walkable: false, plantable: false, height: 64, visual: 'wall' },   // gray
+  [TILE_TYPES.WINDOW]: { color: 0xa0522d, walkable: false, plantable: true, height: 20, visual: 'window' },    // sienna brown
+  [TILE_TYPES.LEDGE]: { color: 0x808097, walkable: false, plantable: true, height: 12, visual: 'ledge' },
+  [TILE_TYPES.TABLE]: { color: 0x8b4513, walkable: false, plantable: true, height: 16, visual: 'table' },    // saddle brown
+  [TILE_TYPES.TV]: { color: 0x000000, walkable: false, plantable: false, height: 24, visual: 'tv' },      // black
 };
 
 // Map layout: 15 tiles wide × 13 tiles high

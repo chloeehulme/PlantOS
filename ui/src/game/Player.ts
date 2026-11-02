@@ -1,5 +1,5 @@
 import { Container, Graphics } from 'pixi.js';
-import { TILE_SIZE } from './mapData';
+import { depthOf, tileCenterToIso, viewDeltaToTile } from './iso';
 import type { TileMap } from './TileMap';
 import { getNearbyPlant, isPlantAt } from './Plants';
 import type { Plant } from '../models/Plant';
@@ -16,69 +16,44 @@ export function getApproachedPlant(plants: Plant[], tileX: number, tileY: number
 export class Player {
   private tileX: number;
   private tileY: number;
-  private tileSize: number;
   private container: Container;
-  private graphic: Graphics | null = null;
 
-  constructor(startTileX: number, startTileY: number, tileSize: number = TILE_SIZE) {
+  constructor(startTileX: number, startTileY: number) {
     this.tileX = startTileX;
     this.tileY = startTileY;
-    this.tileSize = tileSize;
     this.container = new Container();
     this.render();
+    this.syncPosition();
   }
 
-  /**
-   * Render the player as a brown square
-   */
+  // Placeholder character, drawn with its feet at the container origin.
   private render(): void {
-    // Remove old graphic if it exists
-    if (this.graphic) {
-      this.container.removeChild(this.graphic);
-    }
-
-    // Create new player graphic (brown square)
-    this.graphic = new Graphics();
-    this.graphic.fill(0x8b6914); // dark brown
-    this.graphic.rect(2, 2, this.tileSize - 4, this.tileSize - 4); // slightly smaller to see it on tiles
-    this.graphic.fill();
-
-    // Add a border to make it more visible
-    this.graphic.stroke({ color: 0x654321, width: 1 });
-    this.graphic.rect(2, 2, this.tileSize - 4, this.tileSize - 4);
-    this.graphic.stroke();
-
-    // Position the graphic based on tile coordinates
-    const pixelX = this.tileX * this.tileSize;
-    const pixelY = this.tileY * this.tileSize;
-    this.graphic.position.set(pixelX, pixelY);
-
-    this.container.addChild(this.graphic);
+    const graphic = new Graphics();
+    graphic.ellipse(0, 0, 12, 6).fill({ color: 0x000000, alpha: 0.25 });
+    graphic.roundRect(-8, -30, 16, 30, 4).fill(0x8b6914).stroke({ color: 0x654321, width: 1 });
+    this.container.addChild(graphic);
   }
 
-  /**
-   * Update player position based on direction
-   */
+  private syncPosition(): void {
+    const { x, y } = tileCenterToIso(this.tileX, this.tileY);
+    this.container.position.set(x, y);
+    this.container.zIndex = depthOf(this.tileX, this.tileY, 0.5);
+  }
+
+  // Keys are relative to the view: "up" heads up-right on screen, "right"
+  // down-right, "down" down-left and "left" up-left, whatever the rotation.
   update(direction: Direction, tileMap: TileMap, plants: Plant[]): void {
     if (!direction) return;
 
-    let newTileX = this.tileX;
-    let newTileY = this.tileY;
-
-    switch (direction) {
-      case 'up':
-        newTileY -= 1;
-        break;
-      case 'down':
-        newTileY += 1;
-        break;
-      case 'left':
-        newTileX -= 1;
-        break;
-      case 'right':
-        newTileX += 1;
-        break;
-    }
+    const step = {
+      up: { dx: 0, dy: -1 },
+      down: { dx: 0, dy: 1 },
+      left: { dx: -1, dy: 0 },
+      right: { dx: 1, dy: 0 },
+    }[direction];
+    const { dx, dy } = viewDeltaToTile(step.dx, step.dy);
+    const newTileX = this.tileX + dx;
+    const newTileY = this.tileY + dy;
 
     // Static world collision (map tiles) and dynamic object collision (plants)
     // are checked independently, then combined.
@@ -88,37 +63,15 @@ export class Player {
     if (isWalkable && !isBlockedByPlant) {
       this.tileX = newTileX;
       this.tileY = newTileY;
-
-      // Update visual position
-      if (this.graphic) {
-        const pixelX = this.tileX * this.tileSize;
-        const pixelY = this.tileY * this.tileSize;
-        this.graphic.position.set(pixelX, pixelY);
-      }
+      this.syncPosition();
     }
   }
 
-  /**
-   * Get the container holding the player graphic
-   */
   getContainer(): Container {
     return this.container;
   }
 
-  /**
-   * Get current tile position
-   */
   getTilePosition(): { x: number; y: number } {
     return { x: this.tileX, y: this.tileY };
-  }
-
-  /**
-   * Get current pixel position
-   */
-  getPixelPosition(): { x: number; y: number } {
-    return {
-      x: this.tileX * this.tileSize,
-      y: this.tileY * this.tileSize,
-    };
   }
 }
