@@ -60,7 +60,7 @@ export class RightSidebar extends Container {
 
     const name = createText(plant.name, { fontSize: 18, fontWeight: '700', wordWrap: true, wordWrapWidth: innerWidth - 36 });
     name.position.set(PADDING, PADDING);
-    const species = createText(plant.species, { fontSize: 13, fill: theme.muted, fontStyle: 'italic' });
+    const species = createText(plant.species, { fontSize: 13, fill: theme.muted });
     species.position.set(PADDING, name.y + name.height + 2);
     const close = new Button('×', 28, 28, () => this.store.closeDetails(), 'neutral');
     close.position.set(RightSidebar.WIDTH - PADDING - 28, PADDING - 2);

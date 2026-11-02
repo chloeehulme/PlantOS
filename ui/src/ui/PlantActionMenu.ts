@@ -138,7 +138,7 @@ export class PlantActionMenu extends Container {
 
     const name = createText(plant.name, { fontWeight: '700', wordWrap: true, wordWrapWidth: innerWidth });
     name.position.set(PADDING, y);
-    const species = createText(plant.species, { fontSize: 12, fill: theme.muted, fontStyle: 'italic' });
+    const species = createText(plant.species, { fontSize: 12, fill: theme.muted });
     species.position.set(PADDING, y + name.height);
     body.addChild(name, species);
     y += name.height + species.height + 8;

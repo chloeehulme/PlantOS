@@ -1,5 +1,6 @@
 import { Container, Graphics } from 'pixi.js';
-import { Button, createInput, createPanelBackground, createText, theme } from './widgets';
+import { PLANT_TYPES } from '../game/plantTypes';
+import { Button, Dropdown, createInput, createPanelBackground, createText, theme } from './widgets';
 
 const WIDTH = 280;
 const PADDING = 16;
@@ -45,20 +46,24 @@ export class PlacementDialog extends Container {
     const location = createText(`Tile ${tileX}, ${tileY}`, { fontSize: 12, fill: theme.muted });
     location.position.set(PADDING, title.y + title.height + 2);
 
-    const nameInput = createInput(innerWidth, 'Name');
+    const nameInput = createInput(innerWidth, 'Nickname');
     nameInput.position.set(PADDING, location.y + location.height + 12);
-    const speciesInput = createInput(innerWidth, 'Species');
-    speciesInput.position.set(PADDING, nameInput.y + 38);
+    const typeDropdown = new Dropdown(
+      innerWidth,
+      PLANT_TYPES.map((type) => type.label),
+      'Choose a plant',
+    );
+    typeDropdown.position.set(PADDING, nameInput.y + 38);
 
-    const error = createText('Name and species are required.', { fontSize: 11, fill: theme.danger });
-    error.position.set(PADDING, speciesInput.y + 36);
+    const error = createText('Nickname and plant are required.', { fontSize: 11, fill: theme.danger });
+    error.position.set(PADDING, typeDropdown.y + 36);
     error.visible = false;
 
     const buttonY = error.y + error.height + 8;
     const halfWidth = (innerWidth - 8) / 2;
     const confirm = new Button('Add', halfWidth, 30, () => {
       const name = nameInput.value.trim();
-      const species = speciesInput.value.trim();
+      const species = typeDropdown.value;
       if (!name || !species) {
         error.visible = true;
         return;
@@ -75,10 +80,10 @@ export class PlacementDialog extends Container {
       title,
       location,
       nameInput,
-      speciesInput,
       error,
       confirm,
       cancel,
+      typeDropdown,
     );
     this.visible = true;
     this.centre();

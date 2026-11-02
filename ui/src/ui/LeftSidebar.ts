@@ -72,7 +72,7 @@ export class LeftSidebar extends Container {
         .fill(plant.id === selectedId ? theme.cardSelected : theme.card);
       const name = createText(plant.name, { fontWeight: '600' });
       name.position.set(10, 5);
-      const species = createText(plant.species, { fontSize: 12, fill: theme.muted, fontStyle: 'italic' });
+      const species = createText(plant.species, { fontSize: 12, fill: theme.muted });
       species.position.set(10, 24);
       item.addChild(bg, name, species);
       item.eventMode = 'static';

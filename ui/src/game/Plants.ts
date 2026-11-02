@@ -1,20 +1,7 @@
 import { Assets, Container, Sprite, Texture } from 'pixi.js';
 import { depthOf, tileCenterToIso } from './iso';
 import type { Plant } from '../models/Plant';
-
-const PLANT_SPRITES: Record<string, string> = {
-  RedAnthurium: '/plants/red_anthurium.png',
-  PurpleAnthurium: '/plants/purple_anthurium.png',
-  PinkAnthurium: '/plants/pink_anthurium.png',
-  Pothos: '/plants/pothos.png',
-  Hoya: '/plants/hoya.png',
-  PeaceLily: '/plants/peace_lily.png',
-};
-
-// Species is free text, so match ignoring case, spaces and punctuation
-// ("Peace Lily" -> PeaceLily); unknown species fall back to the pothos sprite.
-const normalise = (name: string) => name.toLowerCase().replace(/[^a-z]/g, '');
-const SPRITE_BY_SPECIES = new Map(Object.entries(PLANT_SPRITES).map(([k, v]) => [normalise(k), v]));
+import { PLANT_TYPES, spriteUrlFor } from './plantTypes';
 
 // Where a plant's pot base sits relative to the tile centre.
 const PLANT_FOOT_OFFSET_Y = 8;
@@ -54,7 +41,7 @@ export class PlantsLayer {
   }
 
   async load(): Promise<void> {
-    const urls = Object.values(PLANT_SPRITES);
+    const urls = PLANT_TYPES.map((type) => type.spriteUrl);
     const textures = await Assets.load<Texture>(urls);
     for (const url of urls) textures[url].source.scaleMode = 'nearest';
   }
@@ -77,7 +64,7 @@ export class PlantsLayer {
   }
 
   private addSprite(plant: Plant): void {
-    const url = SPRITE_BY_SPECIES.get(normalise(plant.species)) ?? PLANT_SPRITES.Pothos;
+    const url = spriteUrlFor(plant.species);
     const sprite = new Sprite(Assets.get<Texture>(url));
     sprite.anchor.set(0.5, 1);
     const { x, y } = tileCenterToIso(plant.tileX, plant.tileY);
